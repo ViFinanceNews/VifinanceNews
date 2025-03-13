@@ -5,16 +5,27 @@ A financial news analysis tool integrating the **ViFinanceCrawLib** submodule fo
 
 ## 📂 Project Structure
 
+
 vifinancenews/
+
 │── src/
+
 │   ├── main/
+
 │   │   ├── java/
+
 │   │   ├── resources/
+
 │   │   │   ├── ViFinanceCrawLib/  # Submodule (External Repository)
+
 │   │   ├── …
+
 │── .gitmodules
+
 │── README.md
+
 │── …
+
 
 ## 🛠️ **Setup and Cloning the Repository**
 Since **ViFinanceCrawLib** is a Git **submodule**, you must clone it properly.

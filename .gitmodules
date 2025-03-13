@@ -1,0 +1,4 @@
+[submodule "src/main/resources/ViFinanceCrawLib"]
+    path = src/main/resources/ViFinanceCrawLib
+    url = <submodule-url>
+    

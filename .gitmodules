@@ -1,0 +1,3 @@
+[submodule "src/main/resources/backEnd/ViFinanceCrawLib"]
+	path = src/main/resources/backEnd/ViFinanceCrawLib
+	url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git

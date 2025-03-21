@@ -30,9 +30,21 @@ public class WebUtility {
             return "";
         }
     };
+    
+    public static void getResponseAndPrint(HttpURLConnection conn) throws IOException {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            // Print the raw response
+            System.out.println("Response from server:");
+            System.out.println(response.toString());
+        }
+    }
 
-
-     public static LinkedHashMap<Integer, JSONObject> getResponse(HttpURLConnection conn) throws IOException {
+    public static LinkedHashMap<Integer, JSONObject> getResponse(HttpURLConnection conn) throws IOException {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
             String inputLine;
             StringBuilder response = new StringBuilder();
@@ -40,25 +52,41 @@ public class WebUtility {
                 response.append(inputLine);
             }
             String resStr = response.toString();
-            String removeQuote = resStr.substring(1,resStr.length()-1);
-            Properties prop = new Properties();
-            prop.load(new StringReader("key=" + removeQuote));
-            String decodedString = prop.getProperty("key");
-
-            String cleanStr = decodedString.replace("\n", System.lineSeparator());
-            JSONArray jsonArr = new JSONArray(cleanStr);
+            while (StringCheckUtil.needsDecoding(resStr)) {
+                resStr = WebUtility.removeSurroundingQuotes(resStr);
+                resStr = WebUtility.decodeUnicodeString(resStr);
+            }
+            JSONArray jsonArr = new JSONArray(resStr);
             LinkedHashMap<Integer, JSONObject> result = new LinkedHashMap<>();
             for (int iter = 0; iter < jsonArr.length(); iter++) {
                 JSONObject obj = jsonArr.getJSONObject(iter); // Cast directly to JSONObject
                 result.put(iter, obj);
             }
-            
+        
             return result;
         }
         
     };
 
+    private static String decodeUnicodeString(String input) throws IOException {
+        Properties prop = new Properties();
+        prop.load(new StringReader("key=" + input));
+        String decoded = prop.getProperty("key");
 
+        // Remove quotes again if double-escaped
+        decoded = removeSurroundingQuotes(decoded);
+
+        // Decode again if necessary
+        prop.load(new StringReader("key=" + decoded));
+        return prop.getProperty("key");
+    }
+
+    private static String removeSurroundingQuotes(String str) {
+        if (str.startsWith("\"") && str.endsWith("\"")) {
+            return str.substring(1, str.length() - 1);
+        }
+        return str;
+    }
 
     public static void main(String[] args) {
         //  For testing purpose

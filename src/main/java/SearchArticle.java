@@ -9,8 +9,6 @@ import org.json.JSONObject;
 public class SearchArticle {
     private String baseURL;
     private static final Logger logger = Logger.getLogger(SearchArticle.class.getName()); // Create a logger to log the error to trace the error
-    
-    private final WebUtility webUtil;
 
     private void setBaseURL(String inputBaseURL) {
         this.baseURL = inputBaseURL;
@@ -22,7 +20,7 @@ public class SearchArticle {
 
     public SearchArticle(String inBaseURL) {
         this.setBaseURL(inBaseURL);
-        this.webUtil = new WebUtility();
+       
     };
 
     public LinkedHashMap<Integer, JSONObject> getSearchResult(String userQuery) {
@@ -35,7 +33,7 @@ public class SearchArticle {
     
             int responseCode = conn.getResponseCode();
             System.out.println("GET Response Code: " + responseCode);
-    
+            System.out.println("Check the repsonse");
             LinkedHashMap<Integer, JSONObject> responseResult = WebUtility.getResponse(conn);
             /*
              * Each JSON has the properties: date_downloaded, date_publish, author, image_url, main_text,title, url
@@ -49,10 +47,24 @@ public class SearchArticle {
     };
 
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
         String baseUrl = "http://127.0.0.1:5000"; // Flask default localhost
         SearchArticle testSA = new SearchArticle(baseUrl);
         String userQuery = "Giá cổ phiếu VinGroup đang như thế nào ?";
         LinkedHashMap<Integer, JSONObject> result =  testSA.getSearchResult(userQuery);
-        System.out.println(result.toString());
+        long endTime = System.currentTimeMillis();
+        System.out.println("Execution time: " + (endTime - startTime) + " ms");
+        JSONObject exampleObj = result.get(1);
+        System.out.println(exampleObj.keySet().toString()); 
+        // [date_download, date_publish, author, image_url, description, main_text, title, url, tags]
+        System.out.println(exampleObj.get("date_publish") + "\n");
+        System.out.println(exampleObj.get("author") + "\n");
+        System.out.println(exampleObj.get("image_url") + "\n");
+        System.out.println(exampleObj.get("description")+ "\n");
+        System.out.println(exampleObj.get("title") + "\n");
+        System.out.println(exampleObj.get("url")+ "\n");
+        System.out.println(exampleObj.get("tags")+ "\n");
+
+        // System.out.println(result.toString());
     }
 }

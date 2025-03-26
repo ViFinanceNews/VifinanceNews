@@ -1,3 +1,6 @@
 [submodule "src/main/resources/backEnd/ViFinanceCrawLib"]
 	path = src/main/resources/backEnd/ViFinanceCrawLib
 	url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git
+[submodule "src/main/java/WebApp"]
+	path = src/main/java/WebApp
+	url = https://github.com/cocooda/WebApp.git

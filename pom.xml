@@ -5,8 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.vifinancenews</groupId>
-    <artifactId>vifinancenews</artifactId>
+    <artifactId>vifinancenews-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
@@ -15,5 +16,36 @@
             <version>20240205</version>
         </dependency>
 
+
+        <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <version>3.2.2</version> <!-- Use latest stable version -->
+    </dependency>
+
+    <!-- Spring Boot Starter for Redis -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-redis</artifactId>
+        <version>3.2.2</version>
+    </dependency>
+
+    <!-- Spring Session Data Redis -->
+    <dependency>
+        <groupId>org.springframework.session</groupId>
+        <artifactId>spring-session-data-redis</artifactId>
+        <version>3.2.2</version>
+    </dependency>
+
+    <!-- Spring Boot Starter for Configuration and Annotations -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+        <version>3.2.2</version>
+    </dependency>
     </dependencies>
+
+    <modules>
+        <module>src/main/java/WebApp</module>
+    </modules>
 </project>

@@ -37,8 +37,8 @@ import numpy as np
 # # summarizer.terminate() # Calling when stopping the model for saving cost
 
 
-test_quant = QuantAnaIns()
-test_quant.terminate()
+# test_quant = QuantAnaIns()
+# test_quant.terminate()
 # query = "Tình hình giá dầu thô hiện nay đang diễn biến ra sao trên thị trường quốc tế?"
 # sources = [
 #     "Giá dầu thô trên thị trường thế giới đang ghi nhận mức tăng cao trong những phiên giao dịch gần đây, chủ yếu do lo ngại về nguồn cung bị gián đoạn và nhu cầu năng lượng toàn cầu phục hồi mạnh mẽ sau giai đoạn suy giảm.",

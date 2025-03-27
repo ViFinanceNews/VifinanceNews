@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javalin Demo Frontend</title>
+    <script defer src="app.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>News Reader App</h2>
+
+        <!-- Registration Form -->
+        <div class="card p-3">
+            <h4>Register</h4>
+            <input type="email" id="regEmail" placeholder="Email" class="form-control">
+            <input type="password" id="regPassword" placeholder="Password" class="form-control mt-2">
+            <input type="text" id="regUserName" placeholder="Username" class="form-control mt-2">
+            <input type="text" id="regAvatarLink" placeholder="Avatar Link (optional)" class="form-control mt-2">
+            <input type="text" id="regBio" placeholder="Bio (optional)" class="form-control mt-2">
+            <button onclick="registerUser()" class="btn btn-primary mt-2">Register</button>
+            <p id="regMsg" class="text-success mt-2"></p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="card p-3 mt-3">
+            <h4>Login</h4>
+            <input type="email" id="loginEmail" placeholder="Email" class="form-control">
+            <input type="password" id="loginPassword" placeholder="Password" class="form-control mt-2">
+            <div id="otpSection" style="display: none;">
+                <input type="text" id="loginOtp" placeholder="Enter OTP" class="form-control mt-2">
+            </div>
+            <button onclick="loginUser()" class="btn btn-success mt-2">Login</button>
+            <p id="loginMsg" class="text-danger mt-2"></p>
+        </div>
+
+        <!-- Profile Info -->
+        <div class="card p-3 mt-3">
+            <h4>User Profile</h4>
+            <button onclick="fetchProfile()" class="btn btn-info">Get Profile</button>
+            <p id="profileMsg" class="text-dark mt-2"></p>
+        </div>
+
+        <!-- Logout -->
+        <div class="mt-3">
+            <button id="logoutBtn" onclick="logoutUser()" class="btn btn-danger" style="display: none;">Logout</button>
+            <p id="logoutMsg" class="text-success mt-2" style="display: none;"></p>
+        </div>
+    </div>
+</body>
+</html>

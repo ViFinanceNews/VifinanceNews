@@ -1,0 +1,15 @@
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\utilities\PasswordHash.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\utilities\EmailUtility.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\utilities\OTPGenerator.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\daos\IdentifierDAO.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\models\Identifier.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\services\UserService.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\utilities\IDHash.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\utilities\RedisConnection.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\models\Account.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\utilities\RedisOTPService.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\daos\AccountDAO.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\config\SessionConfig.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\config\DatabaseConfig.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\controllers\UserController.java
+C:\Users\duydu\Github\GitHub\CS3332\Web\src\main\java\com\vifinancenews\Main.java

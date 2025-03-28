@@ -1,24 +1,35 @@
+import sys
+import os
+import requests
+import json
+import urllib.parse
+
+# Move up to 'src/main' directory
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 import flask
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from flask import request, jsonify
-
+from urllib.parse import unquote, unquote_plus
 app = flask.Flask(__name__)
 scrapped_url = []
 
-@app.route('/retrive article from websites and display', methods=['POST'])
-def get_articles():
-    data = request.get_json()
-    if not data :
+BASE_URL = "http://127.0.0.1:5001"
+
+@app.route("/get_cached_result/<string:user_query>", methods=['GET'])
+def get_articles(user_query):
+    user_query = unquote_plus(user_query)
+    print("query ", user_query)
+    if not user_query :
         return jsonify({"error": "Invalid input"}), 400
 
-    search_query = data
     processor = ScrapeAndTagArticles()
 
-    scrapped_url.append(processor.search_and_scrape(search_query))
+    scrapped_url.append(processor.search_and_scrape(user_query))
+    print("Sucess")
     return jsonify({"message": "success"}), 200
 
 # If user favorites the article, move it from Redis to the database using its URL as key
-@app.route('/move to database', methods=['POST'])
+@app.route('/save', methods=['POST'])
 def move_to_database():
     data = request.get_json()
     if not data or "url" not in data:
@@ -31,6 +42,7 @@ def move_to_database():
 
     return jsonify({"message": "success"}), 200
 
-#testrun
-if __name__ == '__main__':
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    print("Starting Flask app on port 5001...")
+    app.run(debug=True, host="127.0.0.1", port=5001)  # ✅ Ensure Flask starts

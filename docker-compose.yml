@@ -1,0 +1,13 @@
+services:
+  search_service:
+    build:
+      context: .
+      dockerfile: src/main/python/SearchService/Dockerfile  # ✅ Correct path
+    container_name: search_service
+    restart: always
+    ports:
+      - "5001:5000"  # ✅ Fix typo (should be ports, not port)
+    volumes:
+      - .:/app
+    env_file:  # ✅ Fix environment variable loading
+      - .devcontainer/devcontainer.env

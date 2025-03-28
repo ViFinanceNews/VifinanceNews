@@ -29,16 +29,25 @@ def get_articles(user_query):
     return jsonify({"message": "success"}), 200
 
 # If user favorites the article, move it from Redis to the database using its URL as key
+
 @app.route('/save', methods=['POST'])
 def move_to_database():
     data = request.get_json()
+    
+    # ✅ Validate input
     if not data or "url" not in data:
         return jsonify({"error": "Invalid input, 'url' is required"}), 400
 
+    urls = data["url"]
+    
+    # ✅ Ensure 'urls' is always a list
+    if isinstance(urls, str):
+        urls = [urls]  # Convert single string to list
+
     processor = ScrapeAndTagArticles()
-    for url in scrapped_url:
-        if scrapped_url==url:
-            processor.move_to_database(url)
+    
+    for url in urls:
+        processor.move_to_database(url)  # ✅ Corrected usage
 
     return jsonify({"message": "success"}), 200
 

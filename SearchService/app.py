@@ -3,9 +3,6 @@ import os
 import requests
 import json
 import urllib.parse
-
-# Move up to 'src/main' directory
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 import flask
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from flask import request, jsonify
@@ -18,15 +15,22 @@ BASE_URL = "http://127.0.0.1:5001"
 @app.route("/get_cached_result/<string:user_query>", methods=['GET'])
 def get_articles(user_query):
     user_query = unquote_plus(user_query)
-    print("query ", user_query)
-    if not user_query :
+    if not user_query:
         return jsonify({"error": "Invalid input"}), 400
 
     processor = ScrapeAndTagArticles()
-
-    scrapped_url.append(processor.search_and_scrape(user_query))
-    print("Sucess")
-    return jsonify({"message": "success"}), 200
+    
+    try:
+        scraped_data = processor.search_and_scrape(user_query)
+        if not scraped_data:
+            return jsonify({"error": "No results found"}), 404  # Return 404 if no data found
+        
+        print("Scraped URLs:", scraped_data)  # Debugging info
+        return jsonify({"message": "success", "data": scraped_data}), 200
+    
+    except Exception as e:
+        print(f"Error: {e}")  # Debugging
+        return jsonify({"error": "Internal Server Error"}), 500
 
 # If user favorites the article, move it from Redis to the database using its URL as key
 

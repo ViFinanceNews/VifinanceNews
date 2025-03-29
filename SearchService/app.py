@@ -10,7 +10,6 @@ from urllib.parse import unquote, unquote_plus
 app = flask.Flask(__name__)
 scrapped_url = []
 
-# BASE_URL = "http://127.0.0.1:5001"
 
 @app.route("/get_cached_result/<string:user_query>", methods=['GET'])
 def get_articles(user_query):
@@ -25,7 +24,7 @@ def get_articles(user_query):
         if not scraped_data:
             return jsonify({"error": "No results found"}), 404  # Return 404 if no data found
         
-        print("Scraped URLs:", scraped_data)  # Debugging info
+        # print("Scraped URLs:", scraped_data)  # Debugging info
         return jsonify({"message": "success", "data": scraped_data}), 200
     
     except Exception as e:
@@ -58,4 +57,4 @@ def move_to_database():
 
 if __name__ == "__main__":
     print("Starting Flask app on port 5001...")
-    app.run(debug=True, host="127.0.0.1", port=5001)  # ✅ Ensure Flask starts
+    app.run(debug=True, host="127.0.0.1", port=5001)  

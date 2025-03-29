@@ -10,7 +10,7 @@ from urllib.parse import unquote, unquote_plus
 app = flask.Flask(__name__)
 scrapped_url = []
 
-BASE_URL = "http://127.0.0.1:5001"
+# BASE_URL = "http://127.0.0.1:5001"
 
 @app.route("/get_cached_result/<string:user_query>", methods=['GET'])
 def get_articles(user_query):

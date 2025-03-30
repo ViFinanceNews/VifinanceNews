@@ -1,5 +1,5 @@
-# Use a Python image compatible with multiple architectures
-FROM python:3.11-slim
+# Use a more recent Python image
+FROM python:3.11-slim-bullseye
 
 # Set the working directory inside the container
 WORKDIR /search_service
@@ -7,20 +7,12 @@ WORKDIR /search_service
 # Install required system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
-    gcc \
-    g++ \
-    make \
-    libffi-dev \
-    libpq-dev \
-    python3-dev \
-    libssl-dev \
-    curl \
-    git \
-    libc-dev \
-    python3-pip \
-    python3-venv \
-    rustc \
-    cargo \
+    software-properties-common \
+    apt-transport-https \
+    libopenblas-dev \
+    liblapack3 \
+    libatlas-base-dev \
+    gfortran \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip, setuptools, and wheel
@@ -30,14 +22,15 @@ RUN python -m pip install --upgrade pip setuptools wheel
 RUN python -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# Pre-install Spacy dependencies separately to avoid conflicts
-RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
+# Install Cython via pip (not apt)
+RUN pip install --prefer-binary \
+    cython numpy murmurhash cymem preshed blis thinc
 
 # Copy only requirements first (Docker caching optimization)
 COPY ViFinanceCrawLib/requirements.txt /search_service/
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r /search_service/requirements.txt
+# Install Python dependencies with forced binary versions
+RUN pip install --no-cache-dir -r /search_service/requirements.txt --prefer-binary
 
 # Copy the rest of the application source code
 COPY SearchService /search_service/SearchService

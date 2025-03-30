@@ -1,4 +1,4 @@
-# Use a Python image compatible with multiple architectures (auto-detects ARM64/x86_64)
+# Use a Python image compatible with multiple architectures
 FROM python:3.9
 
 # Install Rust (needed for maturin)
@@ -14,15 +14,21 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libpq-dev \
     python3-dev \
+    libssl-dev \
+    curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
-
-
 
 # Upgrade pip & install dependencies
 RUN pip install --upgrade pip setuptools wheel
 
+# ✅ Explicitly install maturin before installing other dependencies
+RUN pip install --no-cache-dir maturin
 
-# Install spacy dependencies first (to avoid errors)
+# ✅ Install additional dependencies for underthesea-core
+RUN pip install --no-cache-dir Cython numpy tqdm
+
+# ✅ Install spacy dependencies first (to avoid errors)
 RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
 
 # Install spacy

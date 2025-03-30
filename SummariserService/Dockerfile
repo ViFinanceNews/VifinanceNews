@@ -19,8 +19,18 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# ✅ Install maturin first (important!)
+RUN pip install --no-cache-dir maturin
+
+# ✅ Install maturin first (important!)
+RUN pip install --no-cache-dir maturin
+
 # Upgrade pip & install essential build dependencies
 RUN pip install --upgrade pip setuptools wheel maturin Cython numpy tqdm
+
+# ✅ Verify maturin installation
+RUN python -c "import maturin; print('Maturin installed successfully!')"
+
 
 # Install underthesea WITHOUT binary (force compilation from source)
 RUN pip install --no-binary underthesea underthesea

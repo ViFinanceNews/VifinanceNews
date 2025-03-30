@@ -26,6 +26,10 @@ RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir maturin
 
 # ✅ Install additional dependencies for underthesea-core
+
+# ✅ Verify maturin installation
+RUN python -c "import maturin; print('Maturin installed successfully!')"
+
 RUN pip install --no-cache-dir Cython numpy tqdm
 
 # Install underthesea WITHOUT binary (force compilation from source)

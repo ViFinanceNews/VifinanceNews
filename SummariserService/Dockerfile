@@ -1,9 +1,6 @@
-# Use a Python image compatible with multiple architectures (auto-detects ARM64/x86_64)
-FROM python:3.10
+# Use a Python image compatible with multiple architectures
+FROM python:3.10-slim
 
-# Install Rust (needed for maturin and underthesea-core)
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y \
@@ -19,27 +16,10 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# ✅ Install maturin first (important!)
-RUN pip install --no-cache-dir maturin
 
-# ✅ Install maturin first (important!)
-RUN pip install --no-cache-dir maturin
-
-# Upgrade pip & install essential build dependencies
-RUN pip install --upgrade pip setuptools wheel maturin Cython numpy tqdm
-
-# ✅ Verify maturin installation
-RUN python -c "import maturin; print('Maturin installed successfully!')"
-
-
-# Install underthesea WITHOUT binary (force compilation from source)
-RUN pip install --no-binary underthesea underthesea
 
 # Install Spacy dependencies first (avoiding errors)
 RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
-
-# Install Spacy
-RUN pip install --prefer-binary spacy
 
 # Set the working directory inside the container
 WORKDIR /summariser_service
@@ -47,7 +27,7 @@ WORKDIR /summariser_service
 # Copy only requirements first (Docker caching optimization)
 COPY ViFinanceCrawLib/requirements.txt /summariser_service/
 
-# Install Python dependencies
+# Install Python dependencies (excluding underthesea)
 RUN pip install --no-cache-dir -r /summariser_service/requirements.txt
 
 # Copy the rest of the application source code

@@ -1,9 +1,6 @@
 # Use a Python image compatible with multiple architectures
-FROM python:3.10
+FROM python:3.10-slim
 
-# Install Rust (needed for maturin)
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y \
@@ -19,27 +16,11 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip & install dependencies
-RUN pip install --upgrade pip setuptools wheel
 
-# ✅ Explicitly install maturin before installing other dependencies
-RUN pip install --no-cache-dir maturin
 
-# ✅ Install additional dependencies for underthesea-core
-
-# ✅ Verify maturin installation
-RUN python -c "import maturin; print('Maturin installed successfully!')"
-
-RUN pip install --no-cache-dir Cython numpy tqdm
-
-# Install underthesea WITHOUT binary (force compilation from source)
-RUN pip install --no-binary underthesea underthesea
-
-# ✅ Install spacy dependencies first (to avoid errors)
+# Install Spacy dependencies first (avoiding errors)
 RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
 
-# Install spacy
-RUN pip install --prefer-binary spacy
 
 # Set the working directory inside the container
 WORKDIR /search_service
@@ -47,9 +28,8 @@ WORKDIR /search_service
 # Copy only requirements first (Docker caching optimization)
 COPY ViFinanceCrawLib/requirements.txt /search_service/
 
-# Upgrade pip before installing dependencies
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r /search_service/requirements.txt
+# Install Python dependencies (excluding underthesea)
+RUN pip install --no-cache-dir -r /search_service/requirements.txt
 
 # Copy the rest of the application source code
 COPY SearchService /search_service/SearchService

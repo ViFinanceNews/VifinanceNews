@@ -14,19 +14,24 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libpq-dev \
     python3-dev \
+    libssl-dev \
+    curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-
-
-# Upgrade pip & install dependencies
+# Upgrade pip & install core dependencies
 RUN pip install --upgrade pip setuptools wheel
 
-RUN pip install maturin
+# Install Rust-based dependencies first
+RUN pip install --no-cache-dir maturin
 
-# Install spacy dependencies first (to avoid errors)
+# Install dependencies needed for `underthesea`
+RUN pip install --no-cache-dir Cython numpy tqdm
+
+# Install Spacy dependencies first (avoiding errors)
 RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
 
-# Install spacy
+# Install Spacy
 RUN pip install --prefer-binary spacy
 
 # Set the working directory inside the container
@@ -35,12 +40,11 @@ WORKDIR /summariser_service
 # Copy only requirements first (Docker caching optimization)
 COPY ViFinanceCrawLib/requirements.txt /summariser_service/
 
-# Upgrade pip before installing dependencies
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r /summariser_service/requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir -r /summariser_service/requirements.txt
 
 # Copy the rest of the application source code
-COPY SummariserService /summariser_service/SumamriserService
+COPY SummariserService /summariser_service/SummariserService
 COPY ViFinanceCrawLib /summariser_service/ViFinanceCrawLib
 
 # Set PYTHONPATH so the module can be found
@@ -50,4 +54,4 @@ ENV PYTHONPATH="/summariser_service"
 EXPOSE 5000
 
 # Run the Flask app
-CMD ["python", "/summariser_service/SumamriserService/app.py"]
+CMD ["python", "/summariser_service/SummariserService/app.py"]

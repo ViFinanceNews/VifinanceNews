@@ -17,7 +17,6 @@ RUN apt-get update && apt-get install -y \
 # Upgrade pip & install dependencies
 RUN pip install --upgrade pip setuptools wheel
 
-RUN pip install maturin
 
 # Install spacy dependencies first (to avoid errors)
 RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
@@ -33,6 +32,7 @@ COPY ViFinanceCrawLib/requirements.txt /search_service/
 
 # Upgrade pip before installing dependencies
 RUN pip install --upgrade pip && \
+    pip install --no-cache-dir maturin && \
     pip install --no-cache-dir -r /search_service/requirements.txt
 
 # Copy the rest of the application source code

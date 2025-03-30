@@ -33,6 +33,7 @@ COPY ViFinanceCrawLib/requirements.txt /summariser_service/
 
 # Upgrade pip before installing dependencies
 RUN pip install --upgrade pip && \
+    pip install --no-cache-dir maturin && \
     pip install --no-cache-dir -r /summariser_service/requirements.txt
 
 # Copy the rest of the application source code

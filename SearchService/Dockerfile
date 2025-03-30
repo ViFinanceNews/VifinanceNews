@@ -1,5 +1,5 @@
 # Use a Python image compatible with multiple architectures
-FROM python:3.9
+FROM python:3.10
 
 # Install Rust (needed for maturin)
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y

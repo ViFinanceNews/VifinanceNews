@@ -1,5 +1,5 @@
 # Use a Python image compatible with multiple architectures (auto-detects ARM64/x86_64)
-FROM python:3.9
+FROM python:3.10
 
 # Install Rust (needed for maturin and underthesea-core)
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y

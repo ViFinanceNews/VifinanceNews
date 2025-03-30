@@ -1,6 +1,8 @@
 # Use a Python image compatible with multiple architectures
-FROM python:3.10-slim
+FROM python:3.11-slim
 
+# Set the working directory inside the container
+WORKDIR /summariser_service
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,20 +16,27 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     curl \
     git \
+    libc-dev \
+    python3-pip \
+    python3-venv \
+    rustc \
+    cargo \
     && rm -rf /var/lib/apt/lists/*
 
+# Upgrade pip, setuptools, and wheel
+RUN python -m pip install --upgrade pip setuptools wheel
 
+# Create a virtual environment and activate it
+RUN python -m venv /venv
+ENV PATH="/venv/bin:$PATH"
 
-# Install Spacy dependencies first (avoiding errors)
+# Pre-install critical dependencies separately to avoid conflicts
 RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
-
-# Set the working directory inside the container
-WORKDIR /summariser_service
 
 # Copy only requirements first (Docker caching optimization)
 COPY ViFinanceCrawLib/requirements.txt /summariser_service/
 
-# Install Python dependencies (excluding underthesea)
+# Install Python dependencies
 RUN pip install --no-cache-dir -r /summariser_service/requirements.txt
 
 # Copy the rest of the application source code

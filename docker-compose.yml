@@ -1,6 +1,6 @@
 services:
   search_service:
-    image: davestran/search_service:latest
+    image: search_service
     build:
       context: .
       dockerfile: SearchService/Dockerfile  # ✅ Correct path
@@ -14,7 +14,7 @@ services:
       - .env
 
   summariser_service:  # ✅ Fixed incorrect indentation & duplicate "services"
-    image: davestran/summariser_service:latest
+    image: summariser_service
     build:
       context: .
       dockerfile: SummariserService/Dockerfile
@@ -26,3 +26,4 @@ services:
       - ./SummariserService:/app
     env_file:
       - .env
+      

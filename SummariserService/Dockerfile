@@ -1,37 +1,29 @@
-# Use a more recent Python image (bullseye has better package support)
-FROM python:3.11-slim-bullseye
+# Use a lightweight and recent Python image
+FROM python:3.11-slim
 
 # Set the working directory inside the container
 WORKDIR /summariser_service
 
-# Install required system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    software-properties-common \
-    apt-transport-https \
+# Install only required system dependencies (avoid unnecessary packages)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libopenblas-dev \
     liblapack3 \
-    libatlas-base-dev \
-    gfortran \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip, setuptools, and wheel
-RUN python -m pip install --upgrade pip setuptools wheel
+RUN python -m pip install --upgrade --no-cache-dir pip setuptools wheel
 
 # Create a virtual environment and activate it
 RUN python -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# Install `cython` via pip instead of apt
-RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
-
-# Copy only requirements first (Docker caching optimization)
+# Copy only the requirements file first (improves caching)
 COPY ViFinanceCrawLib/requirements.txt /summariser_service/
 
 # Install Python dependencies with forced binary versions
 RUN pip install --no-cache-dir -r /summariser_service/requirements.txt --prefer-binary
 
-# Copy the rest of the application source code
+# Copy the application source code after dependencies are installed
 COPY SummariserService /summariser_service/SummariserService
 COPY ViFinanceCrawLib /summariser_service/ViFinanceCrawLib
 
@@ -41,5 +33,5 @@ ENV PYTHONPATH="/summariser_service"
 # Expose Flask's default port
 EXPOSE 5000
 
-# Run the Flask app
-CMD ["python", "/summariser_service/SummariserService/app.py"]
+# Use a more efficient CMD
+CMD ["venv/bin/python", "/summariser_service/SummariserService/app.py"]

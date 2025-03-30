@@ -17,12 +17,12 @@ services:
     image: davestran/summariser_service:latest
     build:
       context: .
-      dockerfile: SumamriserService/Dockerfile
+      dockerfile: SummariserService/Dockerfile
     container_name: summariser_service
     restart: always
     ports:
       - "5002:5000"
     volumes:
-      - ./SumamriserService:/app
+      - ./SummariserService:/app
     env_file:
       - .env

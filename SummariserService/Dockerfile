@@ -36,7 +36,7 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r /summariser_service/requirements.txt
 
 # Copy the rest of the application source code
-COPY SumamriserService /summariser_service/SumamriserService
+COPY SummariserService /summariser_service/SumamriserService
 COPY ViFinanceCrawLib /summariser_service/ViFinanceCrawLib
 
 # Set PYTHONPATH so the module can be found

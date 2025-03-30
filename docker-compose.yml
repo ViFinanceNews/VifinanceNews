@@ -1,13 +1,28 @@
 services:
   search_service:
+    image: davestran/search_service:latest
     build:
       context: .
-      dockerfile: src/main/python/SearchService/Dockerfile  # ✅ Correct path
+      dockerfile: SearchService/Dockerfile  # ✅ Correct path
     container_name: search_service
     restart: always
     ports:
       - "5001:5000"  # ✅ Fix typo (should be ports, not port)
     volumes:
-      - .:/app
+      - ./SearchService:/app
     env_file:  # ✅ Fix environment variable loading
-      - .devcontainer/devcontainer.env
+      - .env
+
+  summariser_service:  # ✅ Fixed incorrect indentation & duplicate "services"
+    image: davestran/summariser_service:latest
+    build:
+      context: .
+      dockerfile: SumamriserService/Dockerfile
+    container_name: summariser_service
+    restart: always
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./SumamriserService:/app
+    env_file:
+      - .env

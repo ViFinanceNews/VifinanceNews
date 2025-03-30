@@ -29,15 +29,15 @@ RUN pip install --prefer-binary spacy
 WORKDIR /search_service
 
 # Copy only requirements first (Docker caching optimization)
-COPY src/main/ViFinanceCrawLib/requirements.txt /search_service/
+COPY ViFinanceCrawLib/requirements.txt /search_service/
 
 # Upgrade pip before installing dependencies
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r /search_service/requirements.txt
 
 # Copy the rest of the application source code
-COPY src/main/python/SearchService /search_service/SearchService
-COPY src/main/ViFinanceCrawLib /search_service/ViFinanceCrawLib
+COPY SearchService /search_service/SearchService
+COPY ViFinanceCrawLib /search_service/ViFinanceCrawLib
 
 # Set PYTHONPATH so the module can be found
 ENV PYTHONPATH="/search_service"

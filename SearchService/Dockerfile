@@ -28,6 +28,9 @@ RUN pip install --no-cache-dir maturin
 # ✅ Install additional dependencies for underthesea-core
 RUN pip install --no-cache-dir Cython numpy tqdm
 
+# Install underthesea WITHOUT binary (force compilation from source)
+RUN pip install --no-binary underthesea underthesea
+
 # ✅ Install spacy dependencies first (to avoid errors)
 RUN pip install --prefer-binary cython numpy murmurhash cymem preshed blis thinc
 

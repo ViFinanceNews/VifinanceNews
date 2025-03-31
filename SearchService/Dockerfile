@@ -4,6 +4,7 @@ FROM python:3.11-slim
 # Set the working directory inside the container
 WORKDIR /search_service
 
+
 # Install system dependencies first (avoid unnecessary packages)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libopenblas-dev \

@@ -8,3 +8,4 @@ pyodbc
 httpx
 regex
 blis==0.7.9
+opencensus-ext-azure

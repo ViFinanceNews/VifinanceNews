@@ -15,3 +15,6 @@ nltk
 maturin
 tqdm
 dotenv
+sentencepiece
+emoji
+pillow

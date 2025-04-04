@@ -2,12 +2,14 @@ import sys
 import os
 import requests
 import json
-import urllib.parse
 import flask
+import urllib.parse
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from flask import request, jsonify
 from urllib.parse import unquote, unquote_plus
+
 app = flask.Flask(__name__)
+
 scrapped_url = []
 
 

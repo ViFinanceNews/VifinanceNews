@@ -2,13 +2,13 @@ import sys
 import os
 import requests
 import flask
-from ViFinanceCrawLib.Summarizer.Summarizer import Summarizer
+from ViFinanceCrawLib.Summarizer.Summarizer_albert import SummarizerAlbert
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from flask import request, jsonify
 import urllib.parse # for decoding
 
 BASE_URL  = "http://127.0.0.1.5002"
-summarizer = Summarizer()
+summarizer = SummarizerAlbert()
 scraper = ScrapeAndTagArticles()
 
 app = flask.Flask(__name__)

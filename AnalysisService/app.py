@@ -4,13 +4,13 @@ import requests
 import flask
 import redis
 from ViFinanceCrawLib.QualAna.QualAna import QualAnaIns
-from ViFinanceCrawLib.QuantAna.QuantAna import QuantAnaIns
+from ViFinanceCrawLib.QuantAna.QuantAna_albert import QuantAnaInsAlbert
 from flask import request, jsonify
 import urllib.parse # for decoding
 import os
 import json
 
-quant_analyzer = QuantAnaIns()
+quant_analyzer = QuantAnaInsAlbert()
 qual_analyzer = QualAnaIns()
 
 app = flask.Flask(__name__)

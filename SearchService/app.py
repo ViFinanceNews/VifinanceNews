@@ -7,6 +7,7 @@ import urllib.parse
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from flask import request, jsonify
 from urllib.parse import unquote, unquote_plus
+import hashlib
 
 app = flask.Flask(__name__)
 
@@ -27,6 +28,7 @@ def get_articles(user_query):
             return jsonify({"error": "No results found"}), 404  # Return 404 if no data found
         
         # print("Scraped URLs:", scraped_data)  # Debugging info
+        processor.move_query(1, hashlib.md5(user_query.encode()).hexdigest())
         return jsonify({"message": "success", "data": scraped_data}), 200
     
     except Exception as e:

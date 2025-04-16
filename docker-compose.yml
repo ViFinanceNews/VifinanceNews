@@ -1,29 +1,66 @@
 services:
-  search_service:
-    image: search_service
+  app:
     build:
       context: .
-      dockerfile: SearchService/Dockerfile  # ✅ Correct path
-    container_name: search_service
-    restart: always
+      dockerfile: Authentication/Dockerfile
+    container_name: vifinancenews_app
     ports:
-      - "5001:5000"  # ✅ Fix typo (should be ports, not port)
-    volumes:
-      - ./SearchService:/app
-    env_file:  # ✅ Fix environment variable loading
+      - "7000:7000"
+    env_file:
       - .env
+    depends_on:
+      - db
+      - redis
+      - search_service
+      - summariser_service
+    networks:
+      - vifinancenet
 
-  summariser_service:  # ✅ Fixed incorrect indentation & duplicate "services"
-    image: summariser_service
+  search_service:
+    build:
+      context: .
+      dockerfile: SearchService/Dockerfile
+    container_name: search_service
+    ports:
+      - "5001:5000"
+    env_file:
+      - .env
+    networks:
+      - vifinancenet
+
+  summariser_service:
     build:
       context: .
       dockerfile: SummariserService/Dockerfile
     container_name: summariser_service
-    restart: always
     ports:
       - "5002:5000"
-    volumes:
-      - ./SummariserService:/app
     env_file:
       - .env
-      
+    networks:
+      - vifinancenet
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: vifinancenews_db
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: ${DB_PASSWORD}
+      ACCEPT_EULA: "Y"
+    networks:
+      - vifinancenet
+
+  redis:
+    image: redis
+    container_name: vifinancenews_redis
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks:
+      - vifinancenet
+
+networks:
+  vifinancenet:
+    driver: bridge

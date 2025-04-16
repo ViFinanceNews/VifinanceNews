@@ -50,6 +50,7 @@
 
     <modules>
         <module>WebApp</module>
+        <module>Authentication</module>
     </modules>
 
 </project>

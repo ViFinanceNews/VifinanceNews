@@ -5,6 +5,7 @@ import json
 import flask
 import urllib.parse
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
+from ViFinanceCrawLib.QuantAna.QuantAna_albert import QuantAnaInsAlbert
 from flask import request, jsonify
 from urllib.parse import unquote, unquote_plus
 import hashlib
@@ -18,7 +19,7 @@ scrapped_url = []
 @app.route("/get_cached_result/<string:user_query>", methods=['GET'])
 def get_articles(user_query):
     user_query = unquote_plus(user_query)
-    if not user_query:
+    if not user_query or QuantAnaInsAlbert.obsence_check(user_query):
         return jsonify({"error": "Invalid input"}), 400
 
     processor = ScrapeAndTagArticles()
@@ -27,6 +28,7 @@ def get_articles(user_query):
         scraped_data = processor.search_and_scrape(user_query)
         if not scraped_data:
             return jsonify({"error": "No results found"}), 404  # Return 404 if no data found
+        
         
         # print("Scraped URLs:", scraped_data)  # Debugging info
         id=get_user_id()
@@ -84,6 +86,8 @@ def get_user_id():
     else:
         print("Failed to check auth status:", response.json())
         return None
+    
+    
 
 
 

@@ -4,3 +4,6 @@
 [submodule "Authentication"]
 	path = Authentication
 	url = https://github.com/cocooda/WebApp.git
+[submodule "VnCoreNLP"]
+	path = VnCoreNLP
+	url = https://github.com/vncorenlp/VnCoreNLP.git

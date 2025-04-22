@@ -11,6 +11,9 @@ from urllib.parse import unquote, unquote_plus
 import hashlib
 
 
+UP_VOTE=1
+DOWN_VOTE=-1
+
 app = flask.Flask(__name__)
 
 scrapped_url = []
@@ -28,7 +31,6 @@ def get_articles(user_query):
         scraped_data = processor.search_and_scrape(user_query)
         if not scraped_data:
             return jsonify({"error": "No results found"}), 404  # Return 404 if no data found
-        
         
         # print("Scraped URLs:", scraped_data)  # Debugging info
         id=get_user_id()
@@ -86,7 +88,54 @@ def get_user_id():
     else:
         print("Failed to check auth status:", response.json())
         return None
+
+
+@app.route('/vote', methods=['POST'])
+def upvote():
+    data = flask.request.get_json()
+    url = data.get('url')
+    vote_type = data.get('vote_type')
+
+    processor = ScrapeAndTagArticles()
     
+    try:
+        # Update Redis cache
+        redis_key = f"article:{url}"
+        current_vote_type = processor.redis_client.hget(redis_key, "vote_type")
+        current_vote_type = int(current_vote_type) if current_vote_type else 0  # Default to 0 if not set
+
+        if vote_type == UP_VOTE:
+            if current_vote_type == 1:
+                # Undo upvote
+                processor.redis_client.hincrby(redis_key, "upvote", -1)
+                processor.redis_client.hset(redis_key, "vote_type", 0)
+            elif current_vote_type == -1:
+                # Change downvote to upvote
+                processor.redis_client.hincrby(redis_key, "upvote", 2)
+                processor.redis_client.hset(redis_key, "vote_type", 1)
+            else:
+                # Add upvote
+                processor.redis_client.hincrby(redis_key, "upvote", 1)
+                processor.redis_client.hset(redis_key, "vote_type", 1)
+
+        elif vote_type == DOWN_VOTE:
+            if current_vote_type == -1:
+                # Undo downvote
+                processor.redis_client.hincrby(redis_key, "upvote", 1)
+                processor.redis_client.hset(redis_key, "vote_type", 0)
+            elif current_vote_type == 1:
+                # Change upvote to downvote
+                processor.redis_client.hincrby(redis_key, "upvote", -2)
+                processor.redis_client.hset(redis_key, "vote_type", -1)
+            else:
+                # Add downvote
+                processor.redis_client.hincrby(redis_key, "upvote", -1)
+                processor.redis_client.hset(redis_key, "vote_type", -1)
+
+        return flask.jsonify({'status': 'success'})
+    except Exception as e:
+        return flask.jsonify({'status': 'error', 'message': str(e)})
+
     
 
 

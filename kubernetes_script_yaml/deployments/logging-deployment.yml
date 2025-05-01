@@ -15,9 +15,7 @@ spec:
     spec:
       containers:
         - name: logging-service
-          build:
-            context: .
-            dockerfile: LoggingService/Dockerfile
+          image: dattran453/logging_service:v1.0.0
           ports:
             - containerPort: 7004
           envFrom:

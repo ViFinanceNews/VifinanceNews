@@ -15,9 +15,7 @@ spec:
     spec:
       containers:
         - name: summariser-service
-          build:
-            context: .
-            dockerfile: SummariserService/Dockerfile
+          image: dattran453/summariser_service:v1.0.0
           ports:
             - containerPort: 7002
           envFrom:
@@ -25,3 +23,11 @@ spec:
                 name: vifinancenews-config
             - secretRef:
                 name: vifinancenews-secret
+          volumeMounts:
+            - mountPath: /app/models/hub
+              name: hf-models
+      volumes:
+          - name: hf-models
+            persistentVolumeClaim:
+              claimName: hf-models-pvc
+            emptyDir: {}

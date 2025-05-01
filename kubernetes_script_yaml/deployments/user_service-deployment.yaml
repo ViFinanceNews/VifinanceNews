@@ -15,9 +15,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          build:
-            context: .
-            dockerfile: UserService/Dockerfile
+          image: dattran453/user_service:v1.0.0
           ports:
             - containerPort: 6998
           envFrom:
@@ -25,11 +23,3 @@ spec:
                 name: vifinancenews-config
             - secretRef:
                 name: vifinancenews-secret
-          volumeMounts:
-            - name: hf-models
-              mountPath: /app/models/hub
-      volumes:
-        - name: hf-models
-          persistentVolumeClaim:
-            claimName: hf-models-pvc
-

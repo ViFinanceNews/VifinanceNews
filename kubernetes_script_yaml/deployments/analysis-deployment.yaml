@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: analysis-service
-  name: vifinancenews
+  namespace: vifinancenews
 spec:
   replicas: 1
   selector:
@@ -15,9 +15,7 @@ spec:
     spec:
       containers:
         - name: analysis-service
-          build:
-            context: .
-            dockerfile: AnalysisService/Dockerfile
+          image: dattran453/analysis_service:v1.0.0
           ports:
             - containerPort: 7003
           envFrom:
@@ -25,3 +23,13 @@ spec:
                 name: vifinancenews-config
             - secretRef:
                 name: vifinancenews-secret
+            - secretRef:
+                name: vittel-s3-credentials
+          volumeMounts:
+            - mountPath: /app/models/hub
+              name: hf-models
+      volumes:
+          - name: hf-models
+            persistentVolumeClaim:
+              claimName: hf-models-pvc
+            emptyDir: {}

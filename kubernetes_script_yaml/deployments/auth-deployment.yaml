@@ -15,9 +15,7 @@ spec:
     spec:
       containers:
         - name: authentication-service
-          build:
-            context: .
-            dockerfile: AuthService/Dockerfile
+          images: dattran453/authentication_service:v1.0.0
           ports:
             - containerPort: 6999
           envFrom:

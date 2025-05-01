@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: vifinancenews
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 6998
+      targetPort: 6998
+  clusterIP: None

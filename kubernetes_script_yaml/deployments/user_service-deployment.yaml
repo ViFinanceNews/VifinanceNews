@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: vifinancenews
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          build:
+            context: .
+            dockerfile: UserService/Dockerfile
+          ports:
+            - containerPort: 6998
+          envFrom:
+            - configMapRef:
+                name: vifinancenews-config
+            - secretRef:
+                name: vifinancenews-secret
+          volumeMounts:
+            - name: hf-models
+              mountPath: /app/models/hub
+      volumes:
+        - name: hf-models
+          persistentVolumeClaim:
+            claimName: hf-models-pvc
+

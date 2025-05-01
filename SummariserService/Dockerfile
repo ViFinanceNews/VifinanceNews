@@ -1,5 +1,5 @@
 # Use the latest lightweight Python image
-FROM dattran453/base-image:v6
+FROM dattran453/base-image:v7
 
 # Set the user and working directory
 USER root

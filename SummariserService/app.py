@@ -7,7 +7,6 @@ from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagA
 from flask import request, jsonify
 import urllib.parse # for decoding
 
-BASE_URL  = "http://127.0.0.1.5002"
 summarizer = SummarizerAlbert()
 scraper = ScrapeAndTagArticles()
 
@@ -29,7 +28,6 @@ def summarize_article():
 
         # Decode the URL (if it's encoded)
         decoded_url = urllib.parse.unquote(url)
-        print(decoded_url)
         # Scrape the article content
         article_content = scraper.get_an_article(decoded_url)  # Replace with your function
         summary = summarizer.summarize(article_content["main_text"])
@@ -58,6 +56,6 @@ def synthesis_articles():
 
     return jsonify({"synthesis": synthesis_result})
 
-if __name__ == "__main__":
-    print("Starting Flask app on port 5002...")
-    app.run(debug=True, host="127.0.0.1", port=5002)  # ✅ Ensure Flask starts
+# if __name__ == "__main__":
+#     print("Starting Flask app on port 7002...")
+#     app.run(debug=False, host="0.0.0.0", port=7002)  # ✅ Ensure Flask starts

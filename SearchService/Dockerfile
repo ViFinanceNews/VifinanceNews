@@ -1,35 +1,20 @@
 # Use the latest lightweight Python image
-FROM python:3.11-slim
+FROM dattran453/base-image:v6
 
-# Set the working directory inside the container
+# Set the working directory and permissions
+USER root
 WORKDIR /search_service
-
-# Install only required system dependencies (avoid unnecessary packages)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libopenblas-dev \
-    liblapack3 \
-    unixodbc \
-    unixodbc-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Upgrade pip, setuptools, and wheel
-RUN python -m pip install --upgrade --no-cache-dir pip setuptools wheel
-
-# Copy only the requirements file first (for build cache)
-COPY ViFinanceCrawLib/requirements.txt /search_service/
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r /search_service/requirements.txt --prefer-binary
 
 # Copy the application source code
 COPY SearchService /search_service/SearchService
 COPY ViFinanceCrawLib /search_service/ViFinanceCrawLib
+COPY VnCoreNLP /search_service/VnCoreNLP
 
 # Set PYTHONPATH so the modules can be found
 ENV PYTHONPATH="/search_service"
 
-# Expose Flask's default port
-EXPOSE 5000
+# Expose the application's port
+EXPOSE 7001
 
-# Use system Python directly
-CMD ["python", "/search_service/SearchService/app.py"]
+# Use Gunicorn to run the Flask app with increased timeout
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7001", "--timeout", "120", "SearchService.app:app"]

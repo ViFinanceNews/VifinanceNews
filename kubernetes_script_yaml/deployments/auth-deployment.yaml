@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication-service
+  template:
+    metadata:
+      labels:
+        app: authentication-service
+    spec:
+      containers:
+        - name: authentication-service
+          build:
+            context: .
+            dockerfile: Authentication/Dockerfile
+          ports:
+            - containerPort: 6999
+          envFrom:
+            - configMapRef:
+                name: vifinancenews-config
+            - secretRef:
+                name: vifinancenews-secret

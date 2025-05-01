@@ -6,73 +6,83 @@ import flask
 import urllib.parse
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from ViFinanceCrawLib.QuantAna.QuantAna_albert import QuantAnaInsAlbert
+from ViFinanceCrawLib.article_database.ArticleQueryDatabase import AQD
 from flask import request, jsonify
 from urllib.parse import unquote, unquote_plus
 import hashlib
-
 
 UP_VOTE=1
 DOWN_VOTE=-1
 
 app = flask.Flask(__name__)
-
+quant_analyser = QuantAnaInsAlbert()
 scrapped_url = []
+processor = ScrapeAndTagArticles()
+aqd_object = AQD()
 
+@app.route("/get_cached_result", methods=['POST'])
+def get_articles():
+    data = request.get_json()
 
-@app.route("/get_cached_result/<string:user_query>", methods=['GET'])
-def get_articles(user_query):
-    user_query = unquote_plus(user_query)
-    if not user_query or QuantAnaInsAlbert.obsence_check(user_query):
-        return jsonify({"error": "Invalid input"}), 400
+    user_query = data.get("query", "").strip() if data else ""
+    if not user_query or quant_analyser.obsence_check(query=user_query):
+        return jsonify({"error": "Yêu cầu tìm kiếm của bạn vi phạm về điều khoản tìm kiếm nội dung an toàn của chúng tôi"}), 400
 
-    processor = ScrapeAndTagArticles()
-    
     try:
         scraped_data = processor.search_and_scrape(user_query)
+        print("Scrape sucesss")
+        print(scraped_data)
         if not scraped_data:
-            return jsonify({"error": "No results found"}), 404  # Return 404 if no data found
+            return jsonify({"error": "No results found"}), 404
         
-        # print("Scraped URLs:", scraped_data)  # Debugging info
-        id=get_user_id()
-        if id is not None:
-            processor.move_query(id, hashlib.sha256(user_query.encode()).hexdigest())
-            
+        user_id = get_user_id()  # Replace with dynamic user ID logic
+        # print(f"Get User_id {user_id}")
+        if user_id is not None:
+            hashed_query = hashlib.sha256(user_query.encode()).hexdigest()
+            # print(f"user hash-query {hashed_query}")
+            # print(f"user id {user_id}")
+            aqd_object.move_query(user_id, hashed_query)
+
         return jsonify({"message": "success", "data": scraped_data}), 200
-    
+
     except Exception as e:
-        print(f"Error: {e}")  # Debugging
+        print(f"❌ Server Error: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
 
 # If user favorites the article, move it from Redis to the database using its URL as key
 
 @app.route('/save', methods=['POST'])
 def move_to_database():
-    data = request.get_json()
-    
-    # ✅ Validate input
-    if not data or "url" not in data:
-        return jsonify({"error": "Invalid input, 'url' is required"}), 400
+    try:
+        aqd_object.db.connect()
+        data = request.get_json()
 
-    urls = data["url"]
-    
-    # ✅ Ensure 'urls' is always a list
-    if isinstance(urls, str):
-        urls = [urls]  # Convert single string to list
+        # ✅ Validate input
+        if not data or "url" not in data:
+            return jsonify({"error": "Invalid input, 'url' is required"}), 400
 
-    processor = ScrapeAndTagArticles()
-    
-    for url in urls:
-        processor.move_to_database(url)  # ✅ Corrected usage
+        urls = data["url"]
 
-    return jsonify({"message": "success"}), 200
+        # ✅ Ensure 'urls' is always a list
+        if isinstance(urls, str):
+            urls = [urls]  # Convert single string to list
+
+        for url in urls:
+            aqd_object.move_to_database(url)  # ✅ Corrected usage
+
+        return jsonify({"message": "success"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 def get_user_id():
-    BASE_URL = "http://localhost:7000"
+    BASE_URL = "http://localhost:8000"
 
     session = requests.Session()
     
     """Retrieve the user_id from the /api/auth-status endpoint."""
-    auth_status_url = f"{BASE_URL}/api/auth-status"
+    auth_status_url = f"{BASE_URL}/auth-status"
     
     response = session.get(auth_status_url)
     
@@ -92,54 +102,22 @@ def get_user_id():
 
 @app.route('/vote', methods=['POST'])
 def upvote():
-    data = flask.request.get_json()
+    data = request.get_json()
     url = data.get('url')
     vote_type = data.get('vote_type')
-
-    processor = ScrapeAndTagArticles()
-    
     try:
         # Update Redis cache
-        redis_key = f"article:{url}"
-        current_vote_type = processor.redis_client.hget(redis_key, "vote_type")
-        current_vote_type = int(current_vote_type) if current_vote_type else 0  # Default to 0 if not set
-
-        if vote_type == UP_VOTE:
-            if current_vote_type == 1:
-                # Undo upvote
-                processor.redis_client.hincrby(redis_key, "upvote", -1)
-                processor.redis_client.hset(redis_key, "vote_type", 0)
-            elif current_vote_type == -1:
-                # Change downvote to upvote
-                processor.redis_client.hincrby(redis_key, "upvote", 2)
-                processor.redis_client.hset(redis_key, "vote_type", 1)
-            else:
-                # Add upvote
-                processor.redis_client.hincrby(redis_key, "upvote", 1)
-                processor.redis_client.hset(redis_key, "vote_type", 1)
-
-        elif vote_type == DOWN_VOTE:
-            if current_vote_type == -1:
-                # Undo downvote
-                processor.redis_client.hincrby(redis_key, "upvote", 1)
-                processor.redis_client.hset(redis_key, "vote_type", 0)
-            elif current_vote_type == 1:
-                # Change upvote to downvote
-                processor.redis_client.hincrby(redis_key, "upvote", -2)
-                processor.redis_client.hset(redis_key, "vote_type", -1)
-            else:
-                # Add downvote
-                processor.redis_client.hincrby(redis_key, "upvote", -1)
-                processor.redis_client.hset(redis_key, "vote_type", -1)
-
+        redis_key = url
+        raw_data = aqd_object.redis_client.get(redis_key) # JSON String
+        json_string = raw_data.decode("utf-8")
+        article_data = json.loads(json_string)
+        article_data["vote_type"] = vote_type
+        aqd_object.redis_client.set(redis_key, json.dumps(article_data), ex=3600)
         return flask.jsonify({'status': 'success'})
     except Exception as e:
         return flask.jsonify({'status': 'error', 'message': str(e)})
 
-    
 
-
-
-if __name__ == "__main__":
-    print("Starting Flask app on port 5001...")
-    app.run(debug=True, host="127.0.0.1", port=5001)  
+# if __name__ == "__main__":
+#     print("Starting Flask app on port 7001...")
+#     app.run(debug=False, host="0.0.0.0", port=7001)  

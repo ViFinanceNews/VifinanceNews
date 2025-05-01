@@ -1,18 +1,35 @@
 services:
-  app:
+  kong:
+    image: kong:3.6
+    container_name: kong
+    ports:
+      - "8000:8000"     # Public Gateway (HTTP)
+      - "8001:8001"     # Admin API
+      - "8443:8443"     # HTTPS 
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/kong.yml
+      KONG_LOG_LEVEL: debug
+    volumes:
+      - ./kong/kong.yml:/usr/local/kong/kong.yml
+      - ./kong/certs:/etc/kong/certs
+    networks:
+      - vifinancenet
+
+  authentication_service:
     build:
       context: .
       dockerfile: Authentication/Dockerfile
-    container_name: vifinancenews_app
+    container_name: authentication_service
+    expose:
+      - "6999"
     ports:
-      - "7000:7000"
+      - "6999:6999"
     env_file:
       - .env
     depends_on:
       - db
       - redis
-      - search_service
-      - summariser_service
     networks:
       - vifinancenet
 
@@ -21,10 +38,18 @@ services:
       context: .
       dockerfile: SearchService/Dockerfile
     container_name: search_service
+    expose:
+      - "7001"
     ports:
-      - "5001:5000"
+      - "7001:7001"
     env_file:
       - .env
+    volumes:
+      - hf-models:/app/models/hub
+    depends_on:
+      - authentication_service
+      - db
+      - redis 
     networks:
       - vifinancenet
 
@@ -33,23 +58,79 @@ services:
       context: .
       dockerfile: SummariserService/Dockerfile
     container_name: summariser_service
+    expose:
+      - "7002"
     ports:
-      - "5002:5000"
+      - "7002:7002"
     env_file:
       - .env
+    volumes:
+      - hf-models:/app/models/hub
+    depends_on:
+      - search_service
+      - authentication_service
+      - redis
+    networks:
+      - vifinancenet
+
+  analysis_service:
+    build:
+      context: .
+      dockerfile: AnalysisService/Dockerfile
+    container_name: analysis_service
+    expose:
+      - "7003"
+    ports:
+      - "7003:7003"
+    env_file:
+      - .env
+    volumes:
+      - hf-models:/app/models/hub
+    depends_on:
+      - search_service
+      - summariser_service
+      - authentication_service
+      - db
+      - redis
+    networks:
+      - vifinancenet
+
+  logging_service:
+    build:
+      context: .
+      dockerfile: LoggingService/Dockerfile
+    container_name: logging_service
+    expose:
+      - "7004"
+    ports:
+      - "7004:7004"
+    env_file:
+      - .env
+    depends_on:
+      - search_service
+      - authentication_service
+      - summariser_service
+      - analysis_service
     networks:
       - vifinancenet
 
   db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: cockroachdb/cockroach:v23.1.11
     container_name: vifinancenews_db
+    command: start-single-node --insecure
     ports:
-      - "1433:1433"
-    environment:
-      SA_PASSWORD: ${DB_PASSWORD}
-      ACCEPT_EULA: "Y"
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
     networks:
       - vifinancenet
+    env_file:
+      - .env
+    environment:
+      - COCKROACH_DB_PASSWORD=${COCKROACH_DB_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
+      - JDBC_DATABASE_URL=${JDBC_DATABASE_URL}
 
   redis:
     image: redis
@@ -58,9 +139,19 @@ services:
       - "6379:6379"
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
     networks:
       - vifinancenet
 
 networks:
   vifinancenet:
     driver: bridge
+
+volumes:
+  hf-models:
+    external: true      
+  cockroach-data:
+   
+
+

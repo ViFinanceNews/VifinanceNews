@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search-service
+  template:
+    metadata:
+      labels:
+        app: search-service
+    spec:
+      containers:
+        - name: search-service
+          build:
+            context: .
+            dockerfile: SearchService/Dockerfile
+          ports:
+            - containerPort: 7001
+          envFrom:
+            - configMapRef:
+                name: vifinancenews-config
+            - secretRef:
+                name: vifinancenews-secret

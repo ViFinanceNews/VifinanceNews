@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logging-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logging-service
+  template:
+    metadata:
+      labels:
+        app: logging-service
+    spec:
+      containers:
+        - name: logging-service
+          build:
+            context: .
+            dockerfile: LoggingService/Dockerfile
+          ports:
+            - containerPort: 7004
+          envFrom:
+            - configMapRef:
+                name: vifinancenews-config
+            - secretRef:
+                name: vifinancenews-secret

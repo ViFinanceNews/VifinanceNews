@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summariser-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: summariser-service
+  template:
+    metadata:
+      labels:
+        app: summariser-service
+    spec:
+      containers:
+        - name: summariser-service
+          build:
+            context: .
+            dockerfile: SummariserService/Dockerfile
+          ports:
+            - containerPort: 7002
+          envFrom:
+            - configMapRef:
+                name: vifinancenews-config
+            - secretRef:
+                name: vifinancenews-secret

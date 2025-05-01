@@ -106,6 +106,6 @@ def toxicity_analysis():
     except Exception as e:
         return jsonify({'error': str(e)}), 500  # Return proper error message
  
-if __name__ == "__main__":
-    print("Start Flask app on port 5003")
-    app.run(debug=True, host="127.0.0.1", port=5003)
+# if __name__ == "__main__":
+#     print("Start Flask app on port 7003")
+#     app.run(debug=True, host="0.0.0.0", port=7003)

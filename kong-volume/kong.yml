@@ -1,0 +1,36 @@
+_format_version: "3.0"
+services:
+  - name: auth
+    url: http://authentication_service:6999
+    routes:
+      - name: auth_route
+        paths:
+          - /auth
+
+  - name: search
+    url: http://search_service:7001
+    routes:
+      - name: search_route
+        paths:
+          - /search
+
+  - name: summarise
+    url: http://summariser_service:7002
+    routes:
+      - name: summarise_route
+        paths:
+          - /summarise
+
+  - name: analysis
+    url: http://analysis_service:7003
+    routes:
+      - name: analysis_route
+        paths:
+          - /analysis
+
+  - name: logging
+    url: http://logging_service:7004
+    routes:
+      - name: logging_route
+        paths:
+          - /logs

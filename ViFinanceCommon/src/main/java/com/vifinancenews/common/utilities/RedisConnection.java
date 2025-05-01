@@ -7,8 +7,8 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisConnection {
     private static final Dotenv dotenv = Dotenv.load();
-    private static final String REDIS_HOST = dotenv.get("REDIS_HOST");
-    private static final String REDIS_PASSWORD = dotenv.get("REDIS_PASSWORD");
+    private static final String REDIS_HOST = dotenv.get("REDIS_HOST_USR_DATA");
+    private static final String REDIS_PASSWORD = dotenv.get("REDIS_PASSWORD_USR_DATA");
     private static final int REDIS_PORT = 6379;
 
     private static final JedisPool jedisPool = new JedisPool(new JedisPoolConfig(), REDIS_HOST, REDIS_PORT, true);

@@ -1,0 +1,5 @@
+com\vifinancenews\user\services\AccountService.class
+com\vifinancenews\user\services\AvatarService.class
+com\vifinancenews\user\controllers\UserController.class
+com\vifinancenews\Main.class
+com\vifinancenews\user\controllers\AvatarController.class

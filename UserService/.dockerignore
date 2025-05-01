@@ -1,0 +1,5 @@
+target/
+!target/vi_finance_news-1.0-SNAPSHOT.jar
+.idea/
+.git/
+

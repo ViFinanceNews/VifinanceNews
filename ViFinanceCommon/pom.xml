@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.5.1</version> <!-- Make sure to check for the latest version -->
+            <version>42.5.5</version> <!-- Make sure to check for the latest version -->
         </dependency>
 
         <!-- BCrypt for password hashing -->

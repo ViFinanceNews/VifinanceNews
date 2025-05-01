@@ -8,3 +8,7 @@ __pycache__/
 .idea/
 .DS_Store
 *.log
+.ini
+.pem
+.key
+.csr

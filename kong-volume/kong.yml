@@ -1,35 +1,41 @@
 _format_version: "3.0"
 services:
+  - name: usr_serv
+    url: http://user_service:6998 # Must match the docker-container 
+    routes:
+      - name: usr_rout
+        paths:
+          - /usr
   - name: auth
-    url: http://authentication_service:6999
+    url: http://authentication_service:6999 # Must match the docker-container 
     routes:
       - name: auth_route
         paths:
           - /auth
 
   - name: search
-    url: http://search_service:7001
+    url: http://search_service:7001 # Must match the docker-container 
     routes:
       - name: search_route
         paths:
           - /search
 
   - name: summarise
-    url: http://summariser_service:7002
+    url: http://summariser_service:7002 # Must match the docker-container 
     routes:
       - name: summarise_route
         paths:
           - /summarise
 
   - name: analysis
-    url: http://analysis_service:7003
+    url: http://analysis_service:7003 # Must match the docker-container 
     routes:
       - name: analysis_route
         paths:
           - /analysis
 
   - name: logging
-    url: http://logging_service:7004
+    url: http://logging_service:7004 # Must match the docker-container 
     routes:
       - name: logging_route
         paths:

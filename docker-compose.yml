@@ -16,10 +16,27 @@ services:
     networks:
       - vifinancenet
 
+  user_service:
+    build:
+      context: .
+      dockerfile: UserService/Dockerfile
+    container_name: user_service
+    expose:
+      - "6998"
+    ports:
+      - "6998:6998"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - vifinancenet
+
   authentication_service:
     build:
       context: .
-      dockerfile: Authentication/Dockerfile
+      dockerfile: AuthService/Dockerfile
     container_name: authentication_service
     expose:
       - "6999"
@@ -141,6 +158,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
+      REDIS_HOST_USR_DATA: ${REDIS_HOST_USR_DATA}
+      REDIS_PASSWORD_USR_DATA: ${REDIS_PASSWORD_USR_DATA}
     networks:
       - vifinancenet
 

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: authentication-service
+  namespace: vifinancenews
 spec:
   replicas: 1
   selector:
@@ -16,7 +17,7 @@ spec:
         - name: authentication-service
           build:
             context: .
-            dockerfile: Authentication/Dockerfile
+            dockerfile: AuthService/Dockerfile
           ports:
             - containerPort: 6999
           envFrom:

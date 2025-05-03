@@ -48,13 +48,13 @@ def get_articles():
         if not scraped_data:
             return jsonify({"error": "No results found"}), 404
         
-        user_id = get_user_id()  # Replace with dynamic user ID logic
-        # print(f"Get User_id {user_id}")
-        if user_id is not None:
-            hashed_query = hashlib.sha256(user_query.encode()).hexdigest()
-            # print(f"user hash-query {hashed_query}")
-            # print(f"user id {user_id}")
-            aqd_object.move_query(user_id, hashed_query)
+        # user_id = get_user_id()  # Replace with dynamic user ID logic
+        # # print(f"Get User_id {user_id}")
+        # if user_id is not None:
+        #     hashed_query = hashlib.sha256(user_query.encode()).hexdigest()
+        #     # print(f"user hash-query {hashed_query}")
+        #     # print(f"user id {user_id}")
+        #     aqd_object.move_query(user_id, hashed_query)
 
         return jsonify({"message": "success", "data": scraped_data}), 200
 

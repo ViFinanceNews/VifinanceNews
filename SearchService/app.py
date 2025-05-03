@@ -20,6 +20,19 @@ scrapped_url = []
 processor = ScrapeAndTagArticles()
 aqd_object = AQD()
 
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    try:
+        # Check if Redis is available (optional)
+        if not aqd_object.redis_client.ping():
+            return jsonify({"error": "Redis Unavailable"}), 503
+        
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        return jsonify({"error": "Service Unavailable", "message": str(e)}), 503
+
+
 @app.route("/get_cached_result", methods=['POST'])
 def get_articles():
     data = request.get_json()

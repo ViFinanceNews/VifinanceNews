@@ -1,5 +1,4 @@
-# Use the latest lightweight Python image
-FROM dattran453/base-image:v7
+FROM dattran453/base_images_arch:v1
 
 # Set the working directory inside the container
 USER root 
@@ -19,4 +18,4 @@ ENV PYTHONPATH="/analysis_service"
 EXPOSE 7003
 
 # Use Gunicorn to run the Flask app
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7003", "--timeout", "120", "AnalysisService.app:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7003", "--timeout", "120", "AnalysisService.wsgi:app"]

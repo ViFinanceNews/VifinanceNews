@@ -1,5 +1,5 @@
 # Use the latest lightweight Python image
-FROM dattran453/base-image:v7
+FROM dattran453/base_images_arch:v1
 
 # Set the user and working directory
 USER root
@@ -17,4 +17,4 @@ ENV PYTHONPATH="/summariser_service"
 EXPOSE 7002
 
 # Run the app using Gunicorn with a 120-second timeout
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7002", "--timeout", "120", "SummariserService.app:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7002", "--timeout", "120", "SummariserService.wsgi:app"]

@@ -22,7 +22,7 @@ services:
     build:
       context: .
       dockerfile: UserService/Dockerfile
-    image: dattran453/user_service:v1.0.0
+    image: dattran453/user_service:v1.0.1
     container_name: user_service
     expose:
       - "6998"
@@ -40,7 +40,7 @@ services:
     build:
       context: .
       dockerfile: AuthService/Dockerfile
-    image: dattran453/authentication_service:v1.0.0
+    image: dattran453/authentication_service:v1.0.1
     container_name: authentication_service
     expose:
       - "6999"
@@ -58,7 +58,7 @@ services:
     build:
       context: .
       dockerfile: SearchService/Dockerfile
-    image: dattran453/search_service:v1.0.0
+    image: dattran453/search_service:v1.0.1
     container_name: search_service
     expose:
       - "7001"
@@ -79,7 +79,7 @@ services:
     build:
       context: .
       dockerfile: SummariserService/Dockerfile
-    image: dattran453/summariser_service:v1.0.0
+    image: dattran453/summariser_service:v1.0.1
     container_name: summariser_service
     expose:
       - "7002"
@@ -100,7 +100,7 @@ services:
     build:
       context: .
       dockerfile: AnalysisService/Dockerfile
-    image: dattran453/analysis_service:v1.0.0
+    image: dattran453/analysis_service:v1.0.1
     container_name: analysis_service
     expose:
       - "7003"
@@ -123,7 +123,7 @@ services:
     build:
       context: .
       dockerfile: LoggingService/Dockerfile
-    image: dattran453/logging_service:v1.0.0
+    image: dattran453/logging_service:v1.0.1
     container_name: logging_service
     expose:
       - "7004"

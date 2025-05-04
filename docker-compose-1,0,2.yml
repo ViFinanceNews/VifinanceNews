@@ -18,47 +18,47 @@ services:
     networks:
       - vifinancenet
 
+  
   user_service:
-    build:
-      context: .
-      dockerfile: UserService/Dockerfile
-    image: dattran453/user_service:v1.0.1
-    container_name: user_service
-    expose:
-      - "6998"
-    ports:
-      - "6998:6998"
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - redis
-    networks:
-      - vifinancenet
-
+      build:
+        context: .
+        dockerfile: UserService/Dockerfile
+      image: dattran453/user_service:v1.0.2
+      container_name: user_service
+      expose:
+        - "6998"
+      ports:
+        - "6998:6998"
+      env_file:
+        - .env
+      depends_on:
+        - db
+        - redis
+      networks:
+        - vifinancenet
+    
   authentication_service:
-    build:
-      context: .
-      dockerfile: AuthService/Dockerfile
-    image: dattran453/authentication_service:v1.0.1
-    container_name: authentication_service
-    expose:
-      - "6999"
-    ports:
-      - "6999:6999"
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - redis
-    networks:
-      - vifinancenet
-
+      build:
+        context: .
+        dockerfile: AuthService/Dockerfile
+      image: dattran453/authentication_service:v1.0.2
+      container_name: authentication_service
+      expose:
+        - "6999"
+      ports:
+        - "6999:6999"
+      env_file:
+        - .env
+      depends_on:
+        - db
+        - redis
+      networks:
+        - vifinancenet
   search_service:
     build:
       context: .
-      dockerfile: SearchService/Dockerfile
-    image: dattran453/search_service:v1.0.1
+      dockerfile: SearchService/Dockerfile-1.0.2
+    image: dattran453/search_service:v1.0.2
     container_name: search_service
     expose:
       - "7001"
@@ -78,8 +78,8 @@ services:
   summariser_service:
     build:
       context: .
-      dockerfile: SummariserService/Dockerfile
-    image: dattran453/summariser_service:v1.0.1
+      dockerfile: SummariserService/Dockerfile-1.0.2
+    image: dattran453/summariser_service:v1.0.2
     container_name: summariser_service
     expose:
       - "7002"
@@ -99,8 +99,8 @@ services:
   analysis_service:
     build:
       context: .
-      dockerfile: AnalysisService/Dockerfile
-    image: dattran453/analysis_service:v1.0.1
+      dockerfile: AnalysisService/Dockerfile-1.0.2
+    image: dattran453/analysis_service:v1.0.2
     container_name: analysis_service
     expose:
       - "7003"
@@ -122,8 +122,8 @@ services:
   logging_service:
     build:
       context: .
-      dockerfile: LoggingService/Dockerfile
-    image: dattran453/logging_service:v1.0.1
+      dockerfile: LoggingService/Dockerfile-1.0.2
+    image: dattran453/logging_service:v1.0.2
     container_name: logging_service
     expose:
       - "7004"

@@ -27,3 +27,4 @@ flask-cors
 gunicorn
 hvac
 opencensus-ext-azure
+python-dotenv

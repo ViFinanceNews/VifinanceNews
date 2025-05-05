@@ -1,9 +1,10 @@
-FROM dattran453/analysis_service:v1.0.1
+FROM dattran453/base_images_arch:v1
 
 # Set the working directory inside the container
 USER root 
 
 WORKDIR /analysis_service
+
 RUN pip install --default-timeout=100 --prefer-binary \
     --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
     python-dotenv

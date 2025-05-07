@@ -10,3 +10,12 @@
 	path = ViFinanceCrawLib
 	url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git
 	branch = main
+[submodule "AuthService"]
+	path = AuthService
+	url = https://github.com/cocooda/AuthService.git
+[submodule "UserService"]
+	path = UserService
+	url = https://github.com/cocooda/UserService.git
+[submodule "ViFinanceCommon"]
+	path = ViFinanceCommon
+	url = https://github.com/cocooda/ViFinanceCommon.git

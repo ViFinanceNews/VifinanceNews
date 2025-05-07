@@ -3,8 +3,9 @@ from datetime import datetime
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 import os
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 
 # Configure logging with Azure Application Insights
 try:

@@ -10,11 +10,14 @@ from ViFinanceCrawLib.article_database.ArticleQueryDatabase import AQD
 from flask import request, jsonify
 from urllib.parse import unquote, unquote_plus
 import hashlib
+from flask_cors import CORS
 
 UP_VOTE=1
 DOWN_VOTE=-1
 
 app = flask.Flask(__name__)
+CORS(app)
+
 quant_analyser = QuantAnaInsAlbert()
 scrapped_url = []
 processor = ScrapeAndTagArticles()

@@ -9,11 +9,14 @@ from flask import request, jsonify
 import urllib.parse # for decoding
 import os
 import json
+from flask_cors import CORS
 
 quant_analyzer = QuantAnaInsAlbert()
 qual_analyzer = QualAnaIns()
 
 app = flask.Flask(__name__)
+CORS(app)
+
 redis_cache = redis.Redis(
     host = os.getenv("REDIS_HOST"),
     port = os.getenv("REDIS_PORT"),
@@ -100,7 +103,7 @@ def toxicity_analysis():
             shorten_text = quant_analyzer.generative_extractive(redis_article["main_text"])
             toxicity_analysis_analysis = quant_analyzer.detect_toxicity(shorten_text)
         
-            return jsonify({"toxicity_analysis ":toxicity_analysis_analysis})
+            return jsonify({"toxicity_analysis":toxicity_analysis_analysis})
         else:
             return jsonify({'error': 'Article not found in cache'}), 404
     except Exception as e:

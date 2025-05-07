@@ -1,0 +1,11 @@
+[submodule "VnCoreNLP"]
+	path = VnCoreNLP
+	url = https://github.com/vncorenlp/VnCoreNLP.git
+[submodule "Web-for-ViFinance-News"]
+    path = Web-for-ViFinance-News
+    url = https://github.com/Pluck3dEye/Web-for-ViFinance-News.git
+    branch = master
+[submodule "ViFinanceCrawLib"]
+	path = ViFinanceCrawLib
+	url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git
+	branch = main

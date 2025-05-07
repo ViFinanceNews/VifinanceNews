@@ -24,19 +24,7 @@ processor = ScrapeAndTagArticles()
 aqd_object = AQD()
 
 
-@app.route('/health', methods=['GET'])
-def health_check():
-    try:
-        # Check if Redis is available (optional)
-        if not aqd_object.redis_client.ping():
-            return jsonify({"error": "Redis Unavailable"}), 503
-        
-        return jsonify({"status": "healthy"}), 200
-    except Exception as e:
-        return jsonify({"error": "Service Unavailable", "message": str(e)}), 503
-
-
-@app.route("/get_cached_result", methods=['POST'])
+@app.route("api/get_cached_result", methods=['POST'])
 def get_articles():
     data = request.get_json()
 
@@ -67,7 +55,7 @@ def get_articles():
 
 # If user favorites the article, move it from Redis to the database using its URL as key
 
-@app.route('/save', methods=['POST'])
+@app.route('api/save', methods=['POST'])
 def move_to_database():
     try:
         aqd_object.db.connect()
@@ -92,28 +80,29 @@ def move_to_database():
         return jsonify({"error": str(e)}), 500
 
 
-def get_user_id():
-    BASE_URL = "http://localhost:8000"
+# DEPRECATED NOT IN USE
+# def get_user_id():
+#     BASE_URL = "http://localhost:8000"
 
-    session = requests.Session()
+#     session = requests.Session()
     
-    """Retrieve the user_id from the /api/auth-status endpoint."""
-    auth_status_url = f"{BASE_URL}/auth-status"
+#     """Retrieve the user_id from the /api/auth-status endpoint."""
+#     auth_status_url = f"{BASE_URL}/auth-status"
     
-    response = session.get(auth_status_url)
+#     response = session.get(auth_status_url)
     
-    if response.status_code == 200:
-        data = response.json()
-        if data.get("loggedIn"):
-            user_id = data.get("userId")
-            print(f"User ID: {user_id}")
-            return user_id
-        else:
-            print("User is not logged in.")
-            return None
-    else:
-        print("Failed to check auth status:", response.json())
-        return None
+#     if response.status_code == 200:
+#         data = response.json()
+#         if data.get("loggedIn"):
+#             user_id = data.get("userId")
+#             print(f"User ID: {user_id}")
+#             return user_id
+#         else:
+#             print("User is not logged in.")
+#             return None
+#     else:
+#         print("Failed to check auth status:", response.json())
+#         return None
 
 
 @app.route('/vote', methods=['POST'])

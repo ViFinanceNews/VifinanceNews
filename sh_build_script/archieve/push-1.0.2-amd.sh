@@ -6,7 +6,7 @@ PLATFORM="linux/$ARCH"
 TYPE="AMD"
 
 # Define the version
-VERSION="v1.0.2"
+VERSION="v1.0.3"
 
 # Define the services to be built and pushed
 services=(

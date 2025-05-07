@@ -4,7 +4,7 @@
 
 [submodule "Web-for-ViFinance-News"]
 	path = Web-for-ViFinance-News
-	url = https://github.com/Pluck3dEye/Web-for-ViFinance-News
+	url = https://github.com/Pluck3dEye/Web-for-ViFinance-News.git
 	branch = master
 
 [submodule "ViFinanceCrawLib"]

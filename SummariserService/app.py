@@ -6,14 +6,14 @@ from ViFinanceCrawLib.Summarizer.Summarizer_albert import SummarizerAlbert
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from flask import request, jsonify
 import urllib.parse # for decoding
-
+from flask_cors import CORS
 summarizer = SummarizerAlbert()
 scraper = ScrapeAndTagArticles()
 
 app = flask.Flask(__name__)
+CORS(app)
 
-
-@app.route("/summarize/", methods=['POST'])
+@app.route("api/summarize/", methods=['POST'])
 def summarize_article():
     try:
         # Try parsing JSON
@@ -37,7 +37,7 @@ def summarize_article():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/synthesis/", methods=['POST'])
+@app.route("api/synthesis/", methods=['POST'])
 def synthesis_articles():
     # Receive a list of article URLs
     data = request.get_json()

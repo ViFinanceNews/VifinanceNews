@@ -1,0 +1,19 @@
+FROM dattran453/base_images_arch:v1
+
+# Set the user and working directory
+USER root
+WORKDIR /summariser_service
+
+RUN pip install --default-timeout=100 --prefer-binary \
+    --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+    python-dotenv
+
+
+# Set PYTHONPATH so the modules can be found
+ENV PYTHONPATH="/summariser_service"
+
+# Expose Flask's port
+EXPOSE 7002
+
+# Run the app using Gunicorn with a 120-second timeout
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7002", "--timeout", "120", "SummariserService.wsgi:app"]

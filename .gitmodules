@@ -1,19 +1,25 @@
 [submodule "VnCoreNLP"]
-	path = VnCoreNLP
-	url = https://github.com/vncorenlp/VnCoreNLP.git
+    path = VnCoreNLP
+    url = https://github.com/vncorenlp/VnCoreNLP.git
+
 [submodule "ViFinanceCrawLib"]
-	path = ViFinanceCrawLib
-	url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git
-	branch = main
+    path = ViFinanceCrawLib
+    url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git
+    branch = main
 
 [submodule "AuthService"]
-	path = AuthService
-	url = https://github.com/cocooda/AuthService.git
+    path = AuthService
+    url = https://github.com/cocooda/AuthService.git
 
 [submodule "UserService"]
-	path = UserService
-	url = https://github.com/cocooda/UserService.git
+    path = UserService
+    url = https://github.com/cocooda/UserService.git
 
 [submodule "ViFinanceCommon"]
-	path = ViFinanceCommon
-	url = https://github.com/cocooda/ViFinanceCommon.git
+    path = ViFinanceCommon
+    url = https://github.com/cocooda/ViFinanceCommon.git
+
+[submodule "Web-for-ViFinance-News"]
+	path = Web-for-ViFinance-News
+	url = https://github.com/Pluck3dEye/Web-for-ViFinance-News.git
+	branch = master

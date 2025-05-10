@@ -12,10 +12,10 @@
 	branch = main
 [submodule "AuthService"]
 	path = AuthService
-	url = https://github.com/cocooda/AuthService.git
+	url = C:/Users/duydu/Github/GitHub/CS3332/VNdemo/AuthService
 [submodule "UserService"]
 	path = UserService
-	url = https://github.com/cocooda/UserService.git
+	url = C:/Users/duydu/Github/GitHub/CS3332/VNdemo/UserService
 [submodule "ViFinanceCommon"]
 	path = ViFinanceCommon
-	url = https://github.com/cocooda/ViFinanceCommon.git
+	url = C:/Users/duydu/Github/GitHub/CS3332/VNdemo/ViFinanceCommon

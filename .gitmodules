@@ -11,11 +11,12 @@
 	url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git
 	branch = main
 [submodule "AuthService"]
-	path = AuthService
-	url = C:/Users/duydu/Github/GitHub/CS3332/VNdemo/AuthService
+    path = AuthService
+    url = https://github.com/cocooda/AuthService.git
 [submodule "UserService"]
-	path = UserService
-	url = C:/Users/duydu/Github/GitHub/CS3332/VNdemo/UserService
+    path = UserService
+    url = https://github.com/cocooda/UserService.git
 [submodule "ViFinanceCommon"]
-	path = ViFinanceCommon
-	url = C:/Users/duydu/Github/GitHub/CS3332/VNdemo/ViFinanceCommon
+    path = ViFinanceCommon
+    url = https://github.com/cocooda/ViFinanceCommon.git
+

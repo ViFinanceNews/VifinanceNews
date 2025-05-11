@@ -105,7 +105,7 @@ def move_to_database():
 #         return None
 
 
-@app.route('api/vote', methods=['POST'])
+@app.route('/api/vote', methods=['POST'])
 def upvote():
     data = request.get_json()
     url = data.get('url')

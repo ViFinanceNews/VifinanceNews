@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: s3-pv
+  namespace: vifinancenews
+spec:
+  capacity:
+    storage: 50Gi  # Define the storage size you want to allocate for the volume
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany  # You can change this depending on your use case, e.g., ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain  # Keep the volume after the pod is deleted
+  storageClassName: s3-storage-class  # Optional: You can define a storage class
+  csi:
+    driver: s3.csi.k8s.io  # Use the S3 CSI driver for S3-compatible storage
+    volumeHandle: hf-models
+    volumeAttributes:
+      bucket: hf-models  # Name of your Viettel S3 bucket
+      region: vn-north-1  # Region for Viettel's S3 (if applicable)
+      endpoint: https://atm278728-s3user.vcos.cloudstorage.com.vn # Endpoint URL for Viettel's S3 service
+      insecure: "true"  # Optional: Set to "true" if using an HTTP endpoint
+    nodePublishSecretRef:
+      name: vittel-s3-credentials  # Name of the secret with your S3 credentials
+      namespace: vifinancenews

@@ -17,7 +17,7 @@ services:
       - ./kong-volume/certs:/etc/kong/certs
     networks:
       - vifinancenet
-
+      
   user_service:
     build:
       context: .

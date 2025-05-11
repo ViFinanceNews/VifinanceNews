@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summariser-service
+  namespace: vifinancenews
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: summariser-service
+  template:
+    metadata:
+      labels:
+        app: summariser-service
+    spec:
+      containers:
+        - name: summariser-service
+          image: dattran453/summariser_service:v1.0.0
+          ports:
+            - containerPort: 7002
+          envFrom:
+            - configMapRef:
+                name: vifinancenews-config
+            - secretRef:
+                name: vifinancenews-secret
+          volumeMounts:
+            - mountPath: /app/models/hub
+              name: hf-models
+      volumes:
+          - name: hf-models
+            persistentVolumeClaim:
+              claimName: hf-models-pvc
+            emptyDir: {}

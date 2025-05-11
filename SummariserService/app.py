@@ -13,7 +13,7 @@ scraper = ScrapeAndTagArticles()
 app = flask.Flask(__name__)
 CORS(app)
 
-@app.route("api/summarize/", methods=['POST'])
+@app.route("/api/summarize/", methods=['POST'])
 def summarize_article():
     try:
         # Try parsing JSON
@@ -22,7 +22,7 @@ def summarize_article():
         if isinstance(data, dict) and "url" in data:
             url = data["url"]  # JSON case: {"url": "https://example.com"}
         elif isinstance(data, str):  
-            url = data.strip()  # Raw string case: "https://example.com"
+            url = data.strip() # Raw string case: "https://example.com"
         else:
             return jsonify({"error": "Invalid input format"}), 400
 
@@ -37,7 +37,7 @@ def summarize_article():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("api/synthesis/", methods=['POST'])
+@app.route("/api/synthesis/", methods=['POST'])
 def synthesis_articles():
     # Receive a list of article URLs
     data = request.get_json()

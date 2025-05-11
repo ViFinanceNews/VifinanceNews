@@ -25,7 +25,7 @@ redis_cache = redis.Redis(
 )
 
 
-@app.route('api/factcheck/', methods=['POST'])
+@app.route('/api/factcheck/', methods=['POST'])
 def fact_check():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload
@@ -45,7 +45,7 @@ def fact_check():
     except Exception as e:
         return jsonify({'error': str(e)}), 500  # Return proper error message
     
-@app.route('api/biascheck/', methods=['POST'])
+@app.route('/api/biascheck/', methods=['POST'])
 def bias_check():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload
@@ -66,7 +66,7 @@ def bias_check():
     except Exception as e:
         return jsonify({'error': str(e)}), 500  # Return proper error message
 
-@app.route('api/sentiment_analysis/', methods=['POST'])
+@app.route('/api/sentiment_analysis/', methods=['POST'])
 def sentiment_analysis():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload
@@ -88,7 +88,7 @@ def sentiment_analysis():
     except Exception as e:
         return jsonify({'error': str(e)}), 500  # Return proper error message
 
-@app.route('api/toxicity_analysis/',  methods=['POST'])
+@app.route('/api/toxicity_analysis/',  methods=['POST'])
 def toxicity_analysis():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload

@@ -41,7 +41,7 @@ VALID_SERVICES = {
 }
 
 # Health check endpoint
-@app.route('api/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({
         "status": "healthy",
@@ -50,7 +50,7 @@ def health():
     })
 
 # Log endpoint for general messages
-@app.route('api/log', methods=['POST'])
+@app.route('/api/log', methods=['POST'])
 def log_message():
     try:
         data = request.get_json()
@@ -103,7 +103,7 @@ def log_message():
         return jsonify({"error": str(e)}), 500
 
 # Exception logging endpoint
-@app.route('api/exception', methods=['POST'])
+@app.route('/api/exception', methods=['POST'])
 def log_exception():
     try:
         data = request.get_json()
@@ -142,7 +142,7 @@ def log_exception():
         return jsonify({"error": str(e)}), 500
 
 # Event logging endpoint
-@app.route('api/event', methods=['POST'])
+@app.route('/api/event', methods=['POST'])
 def log_event():
     try:
         data = request.get_json()

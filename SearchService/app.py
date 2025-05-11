@@ -24,7 +24,7 @@ processor = ScrapeAndTagArticles()
 aqd_object = AQD()
 
 
-@app.route("api/get_cached_result", methods=['POST'])
+@app.route("/api/get_cached_result", methods=['POST'])
 def get_articles():
     data = request.get_json()
 
@@ -55,7 +55,7 @@ def get_articles():
 
 # If user favorites the article, move it from Redis to the database using its URL as key
 
-@app.route('api/save', methods=['POST'])
+@app.route('/api/save', methods=['POST'])
 def move_to_database():
     try:
         aqd_object.db.connect()

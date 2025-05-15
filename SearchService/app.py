@@ -102,15 +102,15 @@ def get_up_vote():
         user_votes_key = f"user:{user_id}:personal_vote"
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
-        #neutral vote to upvote +1
+        #Transition from neutral vote to upvote +1
         if vote_type==NEUTRAL_VOTE:
             aqd_object.redis_client.hincrby(url, 'up_vote', 1)
             aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
-        #upvote to neutral vote -1
+        #Transition from upvote to neutral vote -1
         if vote_type == UP_VOTE:
             aqd_object.redis_client.hincrby(url, 'up_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
-        #downvote to upvote +2
+        #Transition from downvote to upvote +2
         elif vote_type == DOWN_VOTE:
             aqd_object.redis_client.hincrby(url, 'up_vote', 2)
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
@@ -133,15 +133,15 @@ def get_down_vote():
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
 
-        #neutral vote to downvote -1
+        #Transition from neutral vote to downvote -1
         if vote_type==NEUTRAL_VOTE:
             aqd_object.redis_client.hincrby(url, 'down_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
-        #downvote to neutral vote +1
+        #Transition from downvote to neutral vote +1
         if vote_type == DOWN_VOTE:
             aqd_object.redis_client.hincrby(url, 'down_vote', 1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
-        #upvote to downvote -2
+        #Transition from upvote to downvote -2
         elif vote_type == UP_VOTE:
             aqd_object.redis_client.hincrby(url, 'down_vote', -2)
             aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)

@@ -6,10 +6,6 @@
 	path = Web-for-ViFinance-News
 	url = https://github.com/Pluck3dEye/Web-for-ViFinance-News.git
 	branch = master
-[submodule "ViFinanceCrawLib"]
-	path = ViFinanceCrawLib
-	url = https://github.com/DTJ-Tran/ViFinanceCrawLib.git
-	branch = main
 [submodule "AuthService"]
 	path = AuthService
 	url = https://github.com/cocooda/AuthService.git
@@ -19,3 +15,6 @@
 [submodule "ViFinanceCommon"]
 	path = ViFinanceCommon
 	url = https://github.com/cocooda/ViFinanceCommon.git
+[submodule "ViFinanceCrawLib"]
+	path = ViFinanceCrawLib
+	url = https://github.com/ViFinanceNews/ViFinanceCrawLib.git

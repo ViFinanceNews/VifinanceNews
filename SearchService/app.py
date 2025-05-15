@@ -14,6 +14,7 @@ from flask_cors import CORS
 
 UP_VOTE=1
 DOWN_VOTE=-1
+NEUTRAL_VOTE=0
 
 app = flask.Flask(__name__)
 CORS(app)
@@ -87,24 +88,65 @@ def save():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-
-# PROVIDE THE VOTE FOR AN ARTICLE # MUST DONE
-@app.route('/api/vote', methods=['POST']) 
-def upvote():
+        
+@app.route('/api/get_up_vote', methods=['POST'])
+def get_up_vote():
     data = request.get_json()
     url = data.get('url')
-    vote_type = data.get('vote_type')
     try:
-        # Update Redis cache
-        redis_key = url
-        raw_data = aqd_object.redis_client.get(redis_key) # JSON String
-        json_string = raw_data.decode("utf-8")
-        article_data = json.loads(json_string)
-        article_data["vote_type"] = vote_type
-        aqd_object.redis_client.set(redis_key, json.dumps(article_data), ex=3600)
-        return flask.jsonify({'status': 'success'})
+
+        user_id=aqd_object.get_userID_from_session(SESSION_ID=request.cookies.get('SESSION_ID'))
+        if user_id is None:
+            return jsonify({"error": "Unauthorized\ – No userId in session"}), 401
+
+        user_votes_key = f"user:{user_id}:personal_vote"
+        vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
+        vote_type= int(vote_type)
+        #Transition from neutral vote to upvote +1
+        if vote_type==NEUTRAL_VOTE:
+            aqd_object.redis_client.hincrby(url, 'up_vote', 1)
+            aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
+        #Transition from upvote to neutral vote -1
+        if vote_type == UP_VOTE:
+            aqd_object.redis_client.hincrby(url, 'up_vote', -1)
+            aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
+        #Transition from downvote to upvote +2
+        elif vote_type == DOWN_VOTE:
+            aqd_object.redis_client.hincrby(url, 'up_vote', 2)
+            aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
+        
+        return flask.jsonify({'vote_type': vote_type})
+    except Exception as e:
+        return flask.jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/get_down_vote', methods=['POST'])
+def get_down_vote():
+    data = request.get_json()
+    url = data.get('url')
+    try:
+
+        user_id=aqd_object.get_userID_from_session(SESSION_ID=request.cookies.get('SESSION_ID'))
+        if user_id is None:
+            return jsonify({"error": "Unauthorized\ – No userId in session"}), 401
+
+        user_votes_key = f"user:{user_id}:personal_vote"
+        vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
+        vote_type= int(vote_type)
+
+        #Transition from neutral vote to downvote -1
+        if vote_type==NEUTRAL_VOTE:
+            aqd_object.redis_client.hincrby(url, 'down_vote', -1)
+            aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
+        #Transition from downvote to neutral vote +1
+        if vote_type == DOWN_VOTE:
+            aqd_object.redis_client.hincrby(url, 'down_vote', 1)
+            aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
+        #Transition from upvote to downvote -2
+        elif vote_type == UP_VOTE:
+            aqd_object.redis_client.hincrby(url, 'down_vote', -2)
+            aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
+
+        return flask.jsonify({'vote_type': vote_type})
     except Exception as e:
         return flask.jsonify({'status': 'error', 'message': str(e)})
 

@@ -112,6 +112,15 @@ def get_up_vote():
         user_votes_key = f"user:{user_id}:personal_vote"
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
+
+        redis_data = aqd_object.redis_client.get(url)
+
+        if redis_data is None:
+            article_data = {"upvotes": NEUTRAL_VOTE}
+        else:
+            # Parse the JSON string into a Python dictionary
+            article_data = json.loads(redis_data.decode("utf-8"))
+
         #neutral vote to upvote +1
         if vote_type==NEUTRAL_VOTE:
             article_data["upvotes"] += 1
@@ -150,6 +159,14 @@ def get_down_vote():
         user_votes_key = f"user:{user_id}:personal_vote"
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or int(NEUTRAL_VOTE)
         vote_type= int(vote_type)
+
+        redis_data = aqd_object.redis_client.get(url)
+        if redis_data is None:
+            article_data = {"upvotes": NEUTRAL_VOTE}
+        else:
+            # Parse the JSON string into a Python dictionary
+            article_data = json.loads(redis_data.decode("utf-8"))
+
 
         #neutral vote to downvote -1
         if vote_type==NEUTRAL_VOTE:

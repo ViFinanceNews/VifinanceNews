@@ -3,6 +3,12 @@ import os
 import requests
 import json
 import urllib.parse
+# Get absolute path to project root (1 level above SearchService)
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Add it to Python's module search path
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 import flask
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from ViFinanceCrawLib.QuantAna.QuantAna_albert import QuantAnaInsAlbert
@@ -17,7 +23,8 @@ DOWN_VOTE=-1
 NEUTRAL_VOTE=0
 
 app = flask.Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True, origins=["http://localhost:6999"])
+
 
 quant_analyser = QuantAnaInsAlbert()
 scrapped_url = []
@@ -28,12 +35,7 @@ aqd_object = AQD()
 @app.route("/api/get_cached_result", methods=['POST'])
 def get_articles():
     data = request.get_json()
-    session_id = request.cookies.get('SESSION_ID')
-
-    if not session_id:
-        return jsonify({"error": "Session ID not found"}), 400
     
-    user_id = aqd_object.get_userID_from_session(session_id=session_id)
     user_query = data.get("query", "").strip() if data else ""
     if not user_query or quant_analyser.obsence_check(query=user_query):
         return jsonify({"error": "Yêu cầu tìm kiếm của bạn vi phạm về điều khoản tìm kiếm nội dung an toàn của chúng tôi"}), 400
@@ -44,6 +46,9 @@ def get_articles():
         print("Scrape sucesss")
         if not scraped_data:
             return jsonify({"error": "No results found"}), 404
+        
+        session_id = request.cookies.get('SESSION_ID')
+        user_id = aqd_object.get_userID_from_session(SESSION_ID=session_id)
         
         if user_id is not None: # Save the user search-history
             aqd_object.move_query_to_history(user_id, user_query.encode())
@@ -95,26 +100,42 @@ def get_up_vote():
     url = data.get('url')
     try:
 
-        user_id=aqd_object.get_userID_from_session(SESSION_ID=request.cookies.get('SESSION_ID'))
+        session_id = request.cookies.get('SESSION_ID')
+
+        if not session_id:
+            return jsonify({"error": "Please log in to continue"}), 401
+        
+        user_id=aqd_object.get_userID_from_session(SESSION_ID=session_id)
         if user_id is None:
-            return jsonify({"error": "Unauthorized\ – No userId in session"}), 401
+            return jsonify({"Guest cannot vote on the article"})
 
         user_votes_key = f"user:{user_id}:personal_vote"
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
-        #Transition from neutral vote to upvote +1
+
+        redis_data = aqd_object.redis_client.get(url)
+
+        if redis_data is None:
+            article_data = {"upvotes": NEUTRAL_VOTE}
+        else:
+            # Parse the JSON string into a Python dictionary
+            article_data = json.loads(redis_data.decode("utf-8"))
+
+        #neutral vote to upvote +1
         if vote_type==NEUTRAL_VOTE:
-            aqd_object.redis_client.hincrby(url, 'up_vote', 1)
+            article_data["upvotes"] += 1
             aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
-        #Transition from upvote to neutral vote -1
+        #upvote to neutral vote -1
         if vote_type == UP_VOTE:
             aqd_object.redis_client.hincrby(url, 'up_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
-        #Transition from downvote to upvote +2
+        #downvote to upvote +2
         elif vote_type == DOWN_VOTE:
-            aqd_object.redis_client.hincrby(url, 'up_vote', 2)
-            aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
-        
+            article_data["upvotes"] += 2
+            aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
+            vote_type = UP_VOTE
+            
+        aqd_object.redis_client.set(url, json.dumps(article_data))
         return flask.jsonify({'vote_type': vote_type})
     except Exception as e:
         return flask.jsonify({'status': 'error', 'message': str(e)})
@@ -125,27 +146,43 @@ def get_down_vote():
     url = data.get('url')
     try:
 
+        session_id = request.cookies.get('SESSION_ID')
+
+        if not session_id:
+            return jsonify({"error": "Guest cannot vote on the article. Please log in to continue"}), 401
+        
+
         user_id=aqd_object.get_userID_from_session(SESSION_ID=request.cookies.get('SESSION_ID'))
         if user_id is None:
-            return jsonify({"error": "Unauthorized\ – No userId in session"}), 401
+            return jsonify({ "User not found in session"})
 
         user_votes_key = f"user:{user_id}:personal_vote"
-        vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
+        vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or int(NEUTRAL_VOTE)
         vote_type= int(vote_type)
 
-        #Transition from neutral vote to downvote -1
+        redis_data = aqd_object.redis_client.get(url)
+        if redis_data is None:
+            article_data = {"upvotes": NEUTRAL_VOTE}
+        else:
+            # Parse the JSON string into a Python dictionary
+            article_data = json.loads(redis_data.decode("utf-8"))
+
+
+        #neutral vote to downvote -1
         if vote_type==NEUTRAL_VOTE:
-            aqd_object.redis_client.hincrby(url, 'down_vote', -1)
+            article_data["upvotes"] += -1
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
-        #Transition from downvote to neutral vote +1
+        #downvote to neutral vote +1
         if vote_type == DOWN_VOTE:
             aqd_object.redis_client.hincrby(url, 'down_vote', 1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
-        #Transition from upvote to downvote -2
+        #upvote to downvote -2
         elif vote_type == UP_VOTE:
-            aqd_object.redis_client.hincrby(url, 'down_vote', -2)
-            aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
-
+            article_data["upvotes"] += -2
+            aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
+            vote_type = DOWN_VOTE
+            
+        aqd_object.redis_client.set(url, json.dumps(article_data))
         return flask.jsonify({'vote_type': vote_type})
     except Exception as e:
         return flask.jsonify({'status': 'error', 'message': str(e)})

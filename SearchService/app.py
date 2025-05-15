@@ -88,16 +88,12 @@ def save():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+        
 @app.route('/api/get_up_vote', methods=['POST'])
 def get_up_vote():
     data = request.get_json()
     url = data.get('url')
     try:
-        # Get vote type from Redis cache
-        redis_key = url
-        raw_data = aqd_object.redis_client.get(redis_key) # JSON String
-        json_string = raw_data.decode("utf-8")
 
         user_id=aqd_object.get_userID_from_session(SESSION_ID=request.cookies.get('SESSION_ID'))
         if user_id is None:
@@ -106,15 +102,17 @@ def get_up_vote():
         user_votes_key = f"user:{user_id}:personal_vote"
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
-        
+        #neutral vote to upvote +1
         if vote_type==NEUTRAL_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'up_vote', 1)
+            aqd_object.redis_client.hincrby(url, 'up_vote', 1)
             aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
+        #upvote to neutral vote -1
         if vote_type == UP_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'up_vote', -1)
+            aqd_object.redis_client.hincrby(url, 'up_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
+        #downvote to upvote +2
         elif vote_type == DOWN_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'up_vote', -2)
+            aqd_object.redis_client.hincrby(url, 'up_vote', 2)
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
         
         return flask.jsonify({'vote_type': vote_type})
@@ -126,10 +124,6 @@ def get_down_vote():
     data = request.get_json()
     url = data.get('url')
     try:
-        # Get vote type from Redis cache
-        redis_key = url
-        raw_data = aqd_object.redis_client.get(redis_key) # JSON String
-        json_string = raw_data.decode("utf-8")
 
         user_id=aqd_object.get_userID_from_session(SESSION_ID=request.cookies.get('SESSION_ID'))
         if user_id is None:
@@ -139,14 +133,17 @@ def get_down_vote():
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
 
+        #neutral vote to downvote -1
         if vote_type==NEUTRAL_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'down_vote', -1)
+            aqd_object.redis_client.hincrby(url, 'down_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
+        #downvote to neutral vote +1
         if vote_type == DOWN_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'down_vote', 1)
+            aqd_object.redis_client.hincrby(url, 'down_vote', 1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
+        #upvote to downvote -2
         elif vote_type == UP_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'down_vote', -2)
+            aqd_object.redis_client.hincrby(url, 'down_vote', -2)
             aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
 
         return flask.jsonify({'vote_type': vote_type})

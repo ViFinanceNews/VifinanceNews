@@ -114,7 +114,7 @@ def get_up_vote():
             aqd_object.redis_client.hincrby(redis_key, 'up_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
         elif vote_type == DOWN_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'up_vote', -2)
+            aqd_object.redis_client.hincrby(redis_key, 'up_vote', 2)
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
         
         return flask.jsonify({'vote_type': vote_type})

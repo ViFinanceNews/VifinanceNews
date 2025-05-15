@@ -140,10 +140,10 @@ def get_down_vote():
         vote_type= int(vote_type)
 
         if vote_type==NEUTRAL_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'down_vote', 1)
+            aqd_object.redis_client.hincrby(redis_key, 'down_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
         if vote_type == DOWN_VOTE:
-            aqd_object.redis_client.hincrby(redis_key, 'down_vote', -1)
+            aqd_object.redis_client.hincrby(redis_key, 'down_vote', 1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
         elif vote_type == UP_VOTE:
             aqd_object.redis_client.hincrby(redis_key, 'down_vote', -2)

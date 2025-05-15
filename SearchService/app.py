@@ -112,26 +112,15 @@ def get_up_vote():
         user_votes_key = f"user:{user_id}:personal_vote"
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
-        
-        redis_data = aqd_object.redis_client.get(url)
-
-        if redis_data is None:
-            article_data = {"upvotes": NEUTRAL_VOTE}
-        else:
-            # Parse the JSON string into a Python dictionary
-            article_data = json.loads(redis_data.decode("utf-8"))
-
-        # Transistion from neutral vote to upvote +1
+        #neutral vote to upvote +1
         if vote_type==NEUTRAL_VOTE:
             article_data["upvotes"] += 1
             aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
-            vote_type = UP_VOTE
-        #Transistion from upvote to neutral vote -1
-        elif vote_type == UP_VOTE:
-            article_data["upvotes"] += -1
+        #upvote to neutral vote -1
+        if vote_type == UP_VOTE:
+            aqd_object.redis_client.hincrby(url, 'up_vote', -1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
-            vote_type = NEUTRAL_VOTE
-        #Transistion from downvote to upvote +2
+        #downvote to upvote +2
         elif vote_type == DOWN_VOTE:
             article_data["upvotes"] += 2
             aqd_object.redis_usr.hset(user_votes_key, url, UP_VOTE)
@@ -162,24 +151,15 @@ def get_down_vote():
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or int(NEUTRAL_VOTE)
         vote_type= int(vote_type)
 
-        redis_data = aqd_object.redis_client.get(url)
-        if redis_data is None:
-            article_data = {"upvotes": NEUTRAL_VOTE}
-        else:
-            # Parse the JSON string into a Python dictionary
-            article_data = json.loads(redis_data.decode("utf-8"))
-
-        #Transistion from neutral vote to downvote -1
+        #neutral vote to downvote -1
         if vote_type==NEUTRAL_VOTE:
             article_data["upvotes"] += -1
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)
-            vote_type = DOWN_VOTE
-        #Transition from downvote to neutral vote +1
-        elif vote_type == DOWN_VOTE:
-            article_data["upvotes"] += 1
+        #downvote to neutral vote +1
+        if vote_type == DOWN_VOTE:
+            aqd_object.redis_client.hincrby(url, 'down_vote', 1)
             aqd_object.redis_usr.hset(user_votes_key, url, NEUTRAL_VOTE)
-            vote_type = NEUTRAL_VOTE
-        #Transition from upvote to downvote -2
+        #upvote to downvote -2
         elif vote_type == UP_VOTE:
             article_data["upvotes"] += -2
             aqd_object.redis_usr.hset(user_votes_key, url, DOWN_VOTE)

@@ -102,7 +102,6 @@ def get_up_vote():
         user_votes_key = f"user:{user_id}:personal_vote"
         vote_type = aqd_object.redis_usr.hget(user_votes_key, url) or str(NEUTRAL_VOTE)
         vote_type= int(vote_type)
-
         #Transition from neutral vote to upvote +1
         if vote_type==NEUTRAL_VOTE:
             aqd_object.redis_client.hincrby(url, 'up_vote', 1)

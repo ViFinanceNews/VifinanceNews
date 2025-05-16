@@ -60,7 +60,6 @@ def get_articles():
         return jsonify({"error": "Internal Server Error"}), 500
 
 
-# If user favorites the article, move it from Redis to the database using its URL as key (IN DEV)
 @app.route('/api/save', methods=['POST'])
 def save():
     try:
@@ -136,9 +135,9 @@ def get_up_vote():
             vote_type = UP_VOTE
             
         aqd_object.redis_client.set(url, json.dumps(article_data))
-        return flask.jsonify({'vote_type': vote_type})
+        return flask.jsonify({'vote_type': vote_type}), 200
     except Exception as e:
-        return flask.jsonify({'status': 'error', 'message': str(e)})
+        return flask.jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/api/get_down_vote', methods=['POST'])
 def get_down_vote():
@@ -183,11 +182,11 @@ def get_down_vote():
             vote_type = DOWN_VOTE
             
         aqd_object.redis_client.set(url, json.dumps(article_data))
-        return flask.jsonify({'vote_type': vote_type})
+        return flask.jsonify({'vote_type': vote_type}), 200
     except Exception as e:
-        return flask.jsonify({'status': 'error', 'message': str(e)})
+        return flask.jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-if __name__ == "__main__":
-    print("Starting Flask app on port 7001...")
-    app.run(debug=True, host="0.0.0.0", port=7001)  
+# if __name__ == "__main__":
+#     print("Starting Flask app on port 7001...")
+#     app.run(debug=True, host="0.0.0.0", port=7001)  

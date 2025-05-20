@@ -11,12 +11,9 @@ import os
 import json
 from flask_cors import CORS
 
+app = flask.Flask(__name__)
 quant_analyzer = QuantAnaInsAlbert()
 qual_analyzer = QualAnaIns()
-
-app = flask.Flask(__name__)
-CORS(app)
-
 redis_cache = redis.Redis(
     host = os.getenv("REDIS_HOST"),
     port = os.getenv("REDIS_PORT"),
@@ -24,6 +21,8 @@ redis_cache = redis.Redis(
     ssl =True
 )
 
+CORS(app, supports_credentials=True, origins=["*"])
+print("Analysis Started")
 
 @app.route('/api/factcheck/', methods=['POST'])
 def fact_check():
@@ -38,7 +37,10 @@ def fact_check():
         if redis_article:
             redis_article = json.loads(redis_article)  # Convert from JSON string to dict
             fact_check = qual_analyzer.fact_check(redis_article)
-            return jsonify({"fact-check":fact_check})
+            print("check fact-check in app.py")
+            decoded_str = fact_check.strip().strip('"')
+            json_data = json.loads(decoded_str)
+            return jsonify({"fact-check":json_data})
         else:
             return jsonify({'error': 'Article not found in cache'}), 404
         
@@ -58,8 +60,11 @@ def bias_check():
         if redis_article:
             redis_article = json.loads(redis_article)  # Convert from JSON string to dict
             bias_analysis = qual_analyzer.bias_analysis(str({"title": redis_article["title"], "main_text": redis_article["main_text"]}))
+            print("Check bias in app.py")
+            decoded_str = bias_analysis.strip().strip('"')
+            json_data = json.loads(decoded_str)
         
-            return jsonify({"bias-check":bias_analysis})
+            return jsonify({"bias-check":json_data})
         else:
             return jsonify({'error': 'Article not found in cache'}), 404
         
@@ -80,7 +85,8 @@ def sentiment_analysis():
             redis_article = json.loads(redis_article)  # Convert from JSON string to dict
             shorten_text = quant_analyzer.generative_extractive(redis_article["main_text"])
             sentiment_analysis = quant_analyzer.sentiment_analysis(shorten_text)
-        
+            print("Check sentiment in app.py")
+            print(type(sentiment_analysis))
             return jsonify({"sentiment_analysis":sentiment_analysis})
         else:
             return jsonify({'error': 'Article not found in cache'}), 404

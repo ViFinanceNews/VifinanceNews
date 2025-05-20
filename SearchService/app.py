@@ -18,18 +18,20 @@ from urllib.parse import unquote, unquote_plus
 import hashlib
 from flask_cors import CORS
 
+
 UP_VOTE=1
 DOWN_VOTE=-1
 NEUTRAL_VOTE=0
 
 app = flask.Flask(__name__)
-CORS(app, supports_credentials=True, origins=["http://localhost:6999"])
+# CORS(app, supports_credentials=True, origins=["http://localhost:6999"])
 
-
+CORS(app, supports_credentials=True, origins=["*"])
 quant_analyser = QuantAnaInsAlbert()
 scrapped_url = []
 processor = ScrapeAndTagArticles()
 aqd_object = AQD()
+print("Search Started")
 
 
 @app.route("/api/get_cached_result", methods=['POST'])

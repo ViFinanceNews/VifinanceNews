@@ -18,3 +18,4 @@ EXPOSE 7001
 
 # Use Gunicorn to run the Flask app with increased timeout
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7001", "--timeout", "120", "SearchService.wsgi:app"]
+

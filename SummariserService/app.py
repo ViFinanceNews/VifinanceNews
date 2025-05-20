@@ -2,17 +2,23 @@ import sys
 import os
 import requests
 import flask
-from ViFinanceCrawLib.Summarizer.Summarizer_albert import SummarizerAlbert
 from ViFinanceCrawLib.article_database.ScrapeAndTagArticles import ScrapeAndTagArticles
 from flask import request, jsonify
 import urllib.parse # for decoding
 from flask_cors import CORS
+import re
+import json
+
+from ViFinanceCrawLib.Summarizer.Summarizer_albert import SummarizerAlbert
+
+
 summarizer = SummarizerAlbert()
 scraper = ScrapeAndTagArticles()
 
 app = flask.Flask(__name__)
 CORS(app)
 
+print("Summarizer Service Done Loading")
 @app.route("/api/summarize/", methods=['POST'])
 def summarize_article():
     try:
@@ -54,8 +60,18 @@ def synthesis_articles():
     # Perform synthesis on retrieved articles
     synthesis_result = summarizer.multi_article_synthesis(articles)
 
-    return jsonify({"synthesis": synthesis_result})
+    parts = synthesis_result.split("```json\n")
+    if len(parts) > 1:
+        json_part = parts[-1].split("\n```")[0]  # Lấy phần cuối cùng và bỏ phần sau ``` 
+        json_string = json_part.strip()  # remove redundant space
+        
+        # remove ``json and ``` in the string result of AI answer
+        json_string = re.sub(r"^\s*(?:```|''')json\s*", "", json_string.strip(), flags=re.IGNORECASE)
+        json_string = re.sub(r"(?:```|''')\s*$", "", json_string.strip(), flags=re.IGNORECASE)
+        # print("Chuỗi JSON trích xuất:")
+        # print(json_string)
 
-# if __name__ == "__main__":
-#     print("Starting Flask app on port 7002...")
-#     app.run(debug=False, host="0.0.0.0", port=7002)  # ✅ Ensure Flask starts
+    decoded_str = json_string.strip().strip('"')
+    json_synthesis = json.loads(decoded_str)
+
+    return jsonify({"synthesis": json_synthesis})

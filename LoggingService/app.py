@@ -1,185 +1,95 @@
-from flask import Flask, request, jsonify
-from datetime import datetime
+from flask import request, Response
+import traceback
 import logging
-from opencensus.ext.azure.log_exporter import AzureLogHandler
 import os
-from flask_cors import CORS
-app = Flask(__name__)
-CORS(app)
+from functools import wraps
+from datetime import datetime
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 
-# Configure logging with Azure Application Insights
-try:
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    
-    # Retrieve instrumentation key from environment variable
-    instrumentation_key = os.getenv('APPINSIGHTS_INSTRUMENTATIONKEY')
-    if not instrumentation_key:
-        raise ValueError("APPINSIGHTS_INSTRUMENTATIONKEY not set")
-    
-    azure_handler = AzureLogHandler(
-        connection_string=f'InstrumentationKey={instrumentation_key}'
-    )
-    logger.addHandler(azure_handler)
-    
-    # Console output for development
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(
-        logging.Formatter('[%(asctime)s][%(levelname)s][%(name)s] %(message)s')
-    )
-    logger.addHandler(stream_handler)
-    
-except Exception as e:
-    print(f"Failed to configure Azure logging: {str(e)}")
 
-# Supported services
-VALID_SERVICES = {
-    'SearchService',
-    'AuthenticationService',
-    'AnalysisService',
-    'SummariseService'
-}
+class UnifiedLogger:
+    def __init__(self, service_name: str):
+        self.service_name = service_name
+        self.logger = logging.getLogger(service_name)
+        self.logger.setLevel(logging.INFO)
 
-# Health check endpoint
-@app.route('/api/health', methods=['GET'])
-def health():
-    return jsonify({
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "services": list(VALID_SERVICES)
-    })
+        # Prevent duplicate handlers
+        connection_string = os.getenv('APPINSIGHTS_CONNECTION_STRING')
+        if connection_string:
+            azure_handler = AzureLogHandler(connection_string=connection_string)
+            self.logger.addHandler(azure_handler)
 
-# Log endpoint for general messages
-@app.route('/api/log', methods=['POST'])
-def log_message():
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['service_name', 'event_type', 'message', 'severity']
-        if not data or not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
-            
-        # Validate service_name
-        service_name = data['service_name']
-        if service_name not in VALID_SERVICES:
-            return jsonify({"error": f"Invalid service_name. Must be one of {VALID_SERVICES}"}), 400
-            
-        event_type = data['event_type']
-        message = data['message']
-        severity = data['severity'].upper()
-        timestamp = data.get('timestamp', datetime.now().isoformat())
-        
-        # Custom dimensions for Application Insights
-        custom_dimensions = {
-            'service_name': service_name,
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(
+            logging.Formatter('[%(asctime)s][%(levelname)s][%(name)s] %(message)s')
+        )
+        self.logger.addHandler(stream_handler)
+
+    def log_message(self, event_type: str, message: str, severity: str, custom_dimensions=None):
+        custom_dimensions = custom_dimensions or {}
+        custom_dimensions.update({
+            'service_name': self.service_name,
             'event_type': event_type,
-            'timestamp': timestamp
-        }
-        
-        # Log based on severity
-        if severity == 'DEBUG':
-            logger.debug(message, extra={'custom_dimensions': custom_dimensions})
-        elif severity == 'INFO':
-            logger.info(message, extra={'custom_dimensions': custom_dimensions})
-        elif severity == 'WARNING':
-            logger.warning(message, extra={'custom_dimensions': custom_dimensions})
-        elif severity == 'ERROR':
-            logger.error(message, extra={'custom_dimensions': custom_dimensions})
-        elif severity == 'CRITICAL':
-            logger.critical(message, extra={'custom_dimensions': custom_dimensions})
-        else:
-            return jsonify({"error": "Invalid severity level"}), 400
-            
-        return jsonify({
-            "status": "success",
-            "message": "Log recorded",
-            "timestamp": timestamp,
-            "service_name": service_name
-        }), 200
-        
-    except Exception as e:
-        logger.exception(f"Error processing log: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+            'timestamp': datetime.utcnow().isoformat()
+        })
 
-# Exception logging endpoint
-@app.route('/api/exception', methods=['POST'])
-def log_exception():
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['service_name', 'error']
-        if not data or not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
-            
-        service_name = data['service_name']
-        if service_name not in VALID_SERVICES:
-            return jsonify({"error": f"Invalid service_name. Must be one of {VALID_SERVICES}"}), 400
-            
-        error_message = data['error']
-        timestamp = data.get('timestamp', datetime.now().isoformat())
-        
-        custom_dimensions = {
-            'service_name': service_name,
-            'timestamp': timestamp
-        }
-        
-        logger.exception(
-            error_message,
-            extra={'custom_dimensions': custom_dimensions}
+        log_method = getattr(self.logger, severity.lower(), self.logger.info)
+        log_method(message, extra={'custom_dimensions': custom_dimensions})
+
+    def log_request(self, event_name: str, status_code: int = None):
+        self.log_message(
+            event_type=event_name,
+            message=f"{event_name} - {request.method} {request.path} [{status_code or 'unknown'}]",
+            severity="INFO" if status_code and 200 <= status_code < 400 else "ERROR",
+            custom_dimensions={
+                "method": request.method,
+                "url": request.url,
+                "endpoint": request.path,
+                "remote_addr": request.remote_addr,
+                "headers": dict(request.headers),
+                "cookies": request.cookies,
+                "args": request.args.to_dict(),
+                "json": request.get_json(silent=True),
+                "status_code": status_code,
+            }
         )
-        
-        return jsonify({
-            "status": "success",
-            "message": "Exception recorded",
-            "timestamp": timestamp,
-            "service_name": service_name
-        }), 200
-        
-    except Exception as e:
-        logger.exception(f"Error processing exception: {str(e)}")
-        return jsonify({"error": str(e)}), 500
 
-# Event logging endpoint
-@app.route('/api/event', methods=['POST'])
-def log_event():
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['service_name', 'event_name']
-        if not data or not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
-            
-        service_name = data['service_name']
-        if service_name not in VALID_SERVICES:
-            return jsonify({"error": f"Invalid service_name. Must be one of {VALID_SERVICES}"}), 400
-            
-        event_name = data['event_name']
-        timestamp = data.get('timestamp', datetime.now().isoformat())
-        
-        custom_dimensions = {
-            'service_name': service_name,
-            'event_name': event_name,
-            'timestamp': timestamp
-        }
-        
-        logger.info(
-            f"Event: {event_name}",
-            extra={'custom_dimensions': custom_dimensions}
-        )
-        
-        return jsonify({
-            "status": "success",
-            "message": "Event recorded",
-            "timestamp": timestamp,
-            "service_name": service_name
-        }), 200
-        
-    except Exception as e:
-        logger.exception(f"Error processing event: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+    def log_exception(self, error: Exception, event_name="UnhandledException"):
+        self.logger.exception(f"{event_name}: {error}", extra={
+            'custom_dimensions': {
+                'service_name': self.service_name,
+                'timestamp': datetime.now().isoformat(),
+                'traceback': traceback.format_exc()
+            }
+        })
 
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', port=7004)
+
+def log_event(service_name: str, event_base: str):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            logger = UnifiedLogger(service_name)
+            logger.log_request(f"{event_base}Attempt")
+
+            try:
+                response = func(*args, **kwargs)
+
+                # Try to extract status code
+                if isinstance(response, tuple):
+                    # Flask pattern: return data, status_code
+                    status_code = response[1]
+                elif isinstance(response, Response):
+                    status_code = response.status_code
+                else:
+                    status_code = 200  # fallback
+
+                event_type = f"{event_base}Success" if 200 <= status_code < 400 else f"{event_base}Failure"
+                logger.log_request(event_type, status_code)
+                return response
+
+            except Exception as e:
+                logger.log_exception(e, f"{event_base}Failure")
+                raise
+
+        return wrapper
+    return decorator

@@ -22,7 +22,8 @@ summarizer = SummarizerAlbert()
 scraper = ScrapeAndTagArticles()
 
 app = flask.Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True, origins=["*"])
+
 
 print("Summarizer Service Done Loading")
 @app.route("/api/summarize/", methods=['POST'])

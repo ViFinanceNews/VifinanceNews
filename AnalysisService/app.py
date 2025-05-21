@@ -11,6 +11,7 @@ import os
 import json
 from flask_cors import CORS
 
+
 app = flask.Flask(__name__)
 quant_analyzer = QuantAnaInsAlbert()
 qual_analyzer = QualAnaIns()

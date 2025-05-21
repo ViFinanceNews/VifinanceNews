@@ -17,11 +17,13 @@ from flask import request, jsonify, request
 from urllib.parse import unquote, unquote_plus
 import hashlib
 from flask_cors import CORS
+from LoggingService.app import log_event
 
 
 UP_VOTE=1
 DOWN_VOTE=-1
 NEUTRAL_VOTE=0
+BACKEND_SERVICE_NAME = "SearchService"
 
 app = flask.Flask(__name__)
 # CORS(app, supports_credentials=True, origins=["http://localhost:6999"])
@@ -35,6 +37,7 @@ print("Search Started")
 
 
 @app.route("/api/get_cached_result", methods=['POST'])
+@log_event(service_name=BACKEND_SERVICE_NAME, event_base="GetCachedResult")
 def get_articles():
     data = request.get_json()
     
@@ -54,6 +57,10 @@ def get_articles():
         
         if user_id is not None: # Save the user search-history
             aqd_object.move_query_to_history(user_id, user_query.encode())
+
+        for article in scraped_data:
+            map_article(article, user_query)
+
        
         return jsonify({"message": "success", "data": scraped_data}), 200
 
@@ -61,8 +68,41 @@ def get_articles():
         print(f"❌ Server Error: {e}")
         return jsonify({"error": "Internal Server Error"}), 500
 
+import json
+
+def map_article(article, query):
+    """
+    Store articles under each query in a Redis hash per user:
+    Key: user:{user_id}:queries
+    Field: query
+    Value: JSON list of article URLs
+    """
+
+    url = article['url']
+    session_id = request.cookies.get('SESSION_ID')
+    user_id = aqd_object.get_userID_from_session(SESSION_ID=session_id)
+
+    if user_id is None:
+        return
+
+    redis_key = f"user:{user_id}:queries"
+
+    # Fetch existing list of URLs for the query
+    existing_data = aqd_object.redis_usr.hget(redis_key, query)
+    if existing_data:
+        url_list = json.loads(existing_data)
+    else:
+        url_list = []
+
+    # Only add URL if it's not already in the list
+    if url not in url_list:
+        url_list.append(url)
+        aqd_object.redis_usr.hset(redis_key, query, json.dumps(url_list))
+        aqd_object.redis_usr.expire(redis_key, 3600)  # 1 hour TTL
+
 
 @app.route('/api/save', methods=['POST'])
+@log_event(service_name=BACKEND_SERVICE_NAME, event_base="SaveArticle")
 def save():
     try:
         aqd_object.db.connect()
@@ -96,6 +136,7 @@ def save():
         return jsonify({"error": str(e)}), 500
         
 @app.route('/api/get_up_vote', methods=['POST'])
+@log_event(service_name=BACKEND_SERVICE_NAME, event_base="GetUpVote")
 def get_up_vote():
     data = request.get_json()
     url = data.get('url')
@@ -142,6 +183,7 @@ def get_up_vote():
         return flask.jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/api/get_down_vote', methods=['POST'])
+@log_event(service_name=BACKEND_SERVICE_NAME, event_base="GetDownVote")
 def get_down_vote():
     data = request.get_json()
     url = data.get('url')
@@ -187,6 +229,8 @@ def get_down_vote():
         return flask.jsonify({'vote_type': vote_type}), 200
     except Exception as e:
         return flask.jsonify({'status': 'error', 'message': str(e)}), 500
+
+
 
 
 # if __name__ == "__main__":

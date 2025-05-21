@@ -10,6 +10,7 @@ import re
 import json
 
 from ViFinanceCrawLib.Summarizer.Summarizer_albert import SummarizerAlbert
+from LoggingService.app import log_event
 
 
 import re
@@ -20,6 +21,7 @@ from ViFinanceCrawLib.Summarizer.Summarizer_albert import SummarizerAlbert
 
 summarizer = SummarizerAlbert()
 scraper = ScrapeAndTagArticles()
+service_name = "SummarizerService"
 
 app = flask.Flask(__name__)
 CORS(app, supports_credentials=True, origins=["*"])
@@ -27,6 +29,7 @@ CORS(app, supports_credentials=True, origins=["*"])
 
 print("Summarizer Service Done Loading")
 @app.route("/api/summarize/", methods=['POST'])
+@log_event(service_name, event_base="Summarize")
 def summarize_article():
     try:
         # Try parsing JSON
@@ -51,6 +54,7 @@ def summarize_article():
 
 
 @app.route("/api/synthesis/", methods=['POST'])
+@log_event(service_name, event_base="Synthesis")
 def synthesis_articles():
     # Receive a list of article URLs
     data = request.get_json()

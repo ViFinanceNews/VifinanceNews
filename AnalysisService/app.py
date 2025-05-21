@@ -10,7 +10,10 @@ import urllib.parse # for decoding
 import os
 import json
 from flask_cors import CORS
+from LoggingService.app import log_event
 
+
+service_name = "AnalysisService"
 
 app = flask.Flask(__name__)
 quant_analyzer = QuantAnaInsAlbert()
@@ -26,6 +29,7 @@ CORS(app, supports_credentials=True, origins=["*"])
 print("Analysis Started")
 
 @app.route('/api/factcheck/', methods=['POST'])
+@log_event(service_name, event_base="FactCheck")
 def fact_check():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload
@@ -49,6 +53,7 @@ def fact_check():
         return jsonify({'error': str(e)}), 500  # Return proper error message
     
 @app.route('/api/biascheck/', methods=['POST'])
+@log_event(service_name, event_base="BiasCheck")
 def bias_check():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload
@@ -73,6 +78,7 @@ def bias_check():
         return jsonify({'error': str(e)}), 500  # Return proper error message
 
 @app.route('/api/sentiment_analysis/', methods=['POST'])
+@log_event(service_name, event_base="SentimentAnalysis")
 def sentiment_analysis():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload
@@ -96,6 +102,7 @@ def sentiment_analysis():
         return jsonify({'error': str(e)}), 500  # Return proper error message
 
 @app.route('/api/toxicity_analysis/',  methods=['POST'])
+@log_event(service_name, event_base="ToxicityAnalysis")
 def toxicity_analysis():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload

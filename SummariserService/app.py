@@ -64,9 +64,20 @@ def synthesis_articles():
         return jsonify({"error": "Some articles could not be retrieved"}), 404
 
     # Perform synthesis on retrieved articles
-    synthesis_result = summarizer.multi_article_synthesis(articles)
+    synthesis_result = summarizer.multi_article_synthesis(articles) # Still str
 
-    return jsonify({"synthesis": synthesis_result})
+    print("Get Synthesis_Res")
+    parts = synthesis_result.split("```json\n")
+    if len(parts) > 1:
+            json_part = parts[-1].split("\n```")[0]  
+            json_string = json_part.strip()  # remove redundant space
+            
+            # remove ``json and ``` in the string result of AI answer
+            json_string = re.sub(r"^\s*(?:```|''')json\s*", "", json_string.strip(), flags=re.IGNORECASE)
+            json_string = re.sub(r"(?:```|''')\s*$", "", json_string.strip(), flags=re.IGNORECASE) # still str
+  
+    json_data = json.loads(json_string) # dictionary
+    return jsonify({"synthesis": json_data})
 
 # if __name__ == "__main__":
 #     print("Starting Flask app on port 7002...")

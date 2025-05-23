@@ -60,7 +60,8 @@ def get_articles():
         if user_id is not None: # Save the user search-history
             aqd_object.move_query_to_history(user_id, user_query.encode())
 
-       
+        current_query_key = f"session:{session_id}:current_query"
+        aqd_object.redis_usr.set(current_query_key, user_query)
         return jsonify({"message": "success", "data": scraped_data}), 200
 
     except Exception as e:
@@ -105,12 +106,12 @@ def save():
         
 
 @app.before_request
+@log_event(service_name=BACKEND_SERVICE_NAME, event_base="BeforeRequest")
 def handle_session_and_query():
     session_id = request.cookies.get('SESSION_ID')
     user_id = aqd_object.get_userID_from_session(session_id)
     if session_id:
         print(f"🔒 session_id: {session_id}")
-        aqd_object.upsert_articles_from_user_hash(session_id=session_id, user_id=user_id)
         
         # Step 1: Check if the session_id is still valid (exists in Redis)
         session_exists = aqd_object.redis_usr.exists(f"session:{session_id}")
@@ -120,21 +121,18 @@ def handle_session_and_query():
             print(f"🗑️ Session expired. Deleted current_query for session: {session_id}")
             return  # session expired, no further processing
 
-
-        aqd_object.redis_usr.delete(f"session:{session_id}:current_query")
-
         # Step 2: Check if the user submitted a new query
         data = request.get_json(silent=True)
         if data and "query" in data:
             user_query = data.get("query", "").strip() if data else None
 
-            # Fetch previous query from Redis
+            # Don't delete the query key before reading it!
             previous_query_bytes = aqd_object.redis_usr.get(f"session:{session_id}:current_query")
             previous_query = previous_query_bytes.decode("utf-8") if previous_query_bytes else None
 
 
             if user_query and user_query != previous_query:
-                print(f"🔄 Query changed from '{previous_query.decode('utf-8')}' to '{user_query}'. Triggering upsert.")
+                print(f"🔄 Query changed from '{previous_query}' to '{user_query}'. Triggering upsert.")
                 aqd_object.upsert_articles_from_user_hash(session_id=session_id, user_id=user_id)
                 aqd_object.redis_usr.set(f"session:{session_id}:current_query", user_query) # save the current_query
             
@@ -336,6 +334,6 @@ def get_total_upvotes():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-if __name__ == "__main__":
-    print("Starting Flask app on port 7001...")
-    app.run(debug=False, host="0.0.0.0", port=7001)  
+# if __name__ == "__main__":
+#     print("Starting Flask app on port 7001...")
+#     app.run(debug=False, host="0.0.0.0", port=7001)  

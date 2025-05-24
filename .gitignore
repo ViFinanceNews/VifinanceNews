@@ -12,3 +12,4 @@ __pycache__/
 .pem
 .key
 .csr
+target/

@@ -69,7 +69,6 @@ def get_articles():
         return jsonify({"error": "Internal Server Error"}), 500
 
 
-
 @app.route('/api/save', methods=['POST'])
 @log_event(service_name=BACKEND_SERVICE_NAME, event_base="SaveArticle")
 def save():
@@ -137,7 +136,6 @@ def handle_session_and_query():
                 aqd_object.redis_usr.set(f"session:{session_id}:current_query", user_query) # save the current_query
             
         
-
 @app.route('/api/get_up_vote', methods=['POST'])
 @log_event(service_name=BACKEND_SERVICE_NAME, event_base="GetUpVote")
 def get_up_vote():
@@ -309,7 +307,6 @@ def get_user_vote():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-
 @app.route('/api/get_total_upvotes', methods=['POST'])
 @log_event(service_name=BACKEND_SERVICE_NAME, event_base="GetTotalUpVotes") 
 def get_total_upvotes():
@@ -332,8 +329,3 @@ def get_total_upvotes():
         return jsonify({'upvotes': upvotes_data}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
-# if __name__ == "__main__":
-#     print("Starting Flask app on port 7001...")
-#     app.run(debug=False, host="0.0.0.0", port=7001)  

@@ -82,18 +82,16 @@ def bias_check():
 def sentiment_analysis():
     try:
         data = request.get_json(silent=True)  # Receive JSON payload
+        
         if not isinstance(data, dict) or "url" not in data:
             return jsonify({'error': 'Invalid request format. Expected JSON with a "url" key.'}), 400
 
         url = data["url"]  # Extract URL
         redis_article = redis_cache.get(url)
-        
         if redis_article:
             redis_article = json.loads(redis_article)  # Convert from JSON string to dict
             shorten_text = quant_analyzer.generative_extractive(redis_article["main_text"])
             sentiment_analysis = quant_analyzer.sentiment_analysis(shorten_text)
-            print("Check sentiment in app.py")
-            print(type(sentiment_analysis))
             return jsonify({"sentiment_analysis":sentiment_analysis})
         else:
             return jsonify({'error': 'Article not found in cache'}), 404
